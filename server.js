@@ -9,7 +9,7 @@ const { Server } = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
-app.use(cors({ origin: '*' }));
+app.use(cors({ origin: 'https://live-location-node-js.onrender.com/' }));
 
 // Serve static files (HTML, CSS, JS) from the "public" folder
 app.use(express.static('public'));
