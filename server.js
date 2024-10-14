@@ -19,7 +19,7 @@ io.on('connection', (socket) => {
 
     // Listen for location updates from the Flutter client
     socket.on('locationUpdate', (data) => {
-    //    console.log('Location update received from Flutter:', data);
+       console.log('Location update received from Flutter:', data);
 
          // Decode base64 image
     // const imageBuffer = Buffer.from(data.username, 'base64');
@@ -44,7 +44,7 @@ io.on('connection', (socket) => {
 
 //   socket.on('locationUpdate', (data) => {
 //     const { userName, userImage, locationData } = data;
-        console.log('Location update received from Flutter:', data);
+        // console.log('Location update received from Flutter:', data);
 
 
 //     // Decode base64 image
