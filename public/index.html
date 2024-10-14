@@ -1,0 +1,243 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Location Tracker</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        #map {
+            height: 400px;
+            /* Set the height of the map */
+            width: 100%;
+            /* Full width */
+        }
+         .user-marker {
+    border-radius: 50%; /* Makes the icon circular */
+    overflow: hidden;   /* Ensures the image is fully contained within the circle */
+    width: 20px;        /* Should match the iconSize in your JavaScript */
+    height: 20px;       /* Should match the iconSize in your JavaScript */
+}
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+    <h1>Live Location</h1>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    
+    <script>
+        const socket = io();
+
+        // Initialize the map
+        const map = L.map('map').setView([0, 0], 2); // Start with a view at latitude 0, longitude 0
+
+        // Load and display OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        // Create a marker
+        const marker = L.marker([0, 0]).addTo(map);
+
+        socket.on('locationUpdate', (data) => {
+                const { lat, lng } = data;
+                 //console.log('Location update received in frontend:', data); // Log the received data
+
+
+                // if (lat && lng) {
+                    // Log before updating
+                    //console.log('Updating marker and centering map...');
+        // console.log(data.latitude);
+
+          // Convert base64 image back to image source
+            const imgSrc = `data:image/png;base64,${data.username}`;
+
+            // Add a marker with a custom icon (user's image) and popup (username)
+            const icon = L.icon({
+                iconUrl: imgSrc,
+                iconSize: [20, 20],
+                className: 'user-marker'
+            });
+                    // Update marker position and map view
+                    // marker.setLatLng([data.latitude, data.longitude]);
+                    map.setView([data.latitude, data.longitude], 15);
+                      L.marker([data.latitude, data.longitude], { icon: icon })
+                        .addTo(map)
+                        .bindPopup(`<b>${data.userimage}</b>`);
+                // } else {
+                //     console.error('Invalid coordinates received');
+                // }
+            });
+
+            //  socket.on('user_data', (data) => {
+            //         const { userName, imagePath, locationData } = data;
+
+            //         // Add marker to OpenStreetMap with the user's image and name at the specified location
+            //         const userIcon = L.icon({
+            //             iconUrl: imagePath, // Path to the uploaded image
+            //             iconSize: [50, 50],
+            //             iconAnchor: [25, 50],
+            //         });
+
+            //         //   marker.setLatLng([data.locationData.latitude, data.locationData.longitude]);
+            //         map.setView([data.locationData.latitude, data.locationData.longitude], 15);
+
+            //         // Create marker with the user's image and a popup showing the user's name
+            //         L.marker([data.latitude, data.longitude], { icon: userIcon })
+            //             .addTo(map)
+            //             .bindPopup(`<b>${userName}</b>`);
+            //     });
+        // Check connection
+        socket.on('connect', () => {
+            console.log('Connected to the server');
+
+        });
+    </script>
+
+
+
+
+</body>
+
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Location Tracker</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body,
+        html {
+            height: 100%;
+            overflow: hidden;
+            /* Prevent scrolling */
+        }
+
+        #map {
+            height: 100vh;
+            /* Full viewport height */
+            width: 100vw;
+            /* Full viewport width */
+        }
+
+        .user-marker {
+            border-radius: 50%;
+            /* Makes the icon circular */
+            overflow: hidden;
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Optional fullscreen button */
+        
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+    <div id="map"></div>
+
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+      const socket = io();
+
+        // Initialize the map
+        const map = L.map('map').setView([0, 0], 2); // Start with a view at latitude 0, longitude 0
+
+        // Load and display OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        // Create a marker
+        const marker = L.marker([0, 0]).addTo(map);
+
+        socket.on('locationUpdate', (data) => {
+            const { lat, lng } = data;
+            // console.log('Location update received in frontend:', data); // Log the received data
+
+
+            // if (lat && lng) {
+            // Log before updating
+            //console.log('Updating marker and centering map...');
+            // console.log(data.latitude);
+
+            // Convert base64 image back to image source
+            const imgSrc = `data:image/png;base64,${data.username}`;
+
+            // Add a marker with a custom icon (user's image) and popup (username)
+            const icon = L.icon({
+                iconUrl: imgSrc,
+                iconSize: [20, 20],
+                className: 'user-marker'
+            });
+            // Update marker position and map view
+            // marker.setLatLng([data.latitude, data.longitude]);
+            map.setView([data.latitude, data.longitude], 15);
+            L.marker([data.latitude, data.longitude], { icon: icon })
+                .addTo(map)
+                .bindPopup(`<b>${data.userimage}</b>`);
+            // } else {
+            //     console.error('Invalid coordinates received');
+            // }
+        });
+
+        // Fullscreen logic
+            function requestFullscreen() {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.mozRequestFullScreen) { // Firefox
+                    document.documentElement.mozRequestFullScreen();
+                } else if (document.documentElement.webkitRequestFullscreen) { // Chrome, Safari, and Opera
+                    document.documentElement.webkitRequestFullscreen();
+                } else if (document.documentElement.msRequestFullscreen) { // IE/Edge
+                    document.documentElement.msRequestFullscreen();
+                }
+            }
+
+        // Trigger fullscreen on first touch
+            window.addEventListener('touchstart', () => {
+                requestFullscreen();
+            }, { once: true }); // Ensures fullscreen is only requested once
+
+    window.addEventListener('click', () => {
+        requestFullscreen();
+    }, { once: true }); // Ensures fullscreen is only requested once
+
+            // // Fallback Fullscreen Button logic
+            // const fullscreenButton = document.getElementById('fullscreen-btn');
+            // fullscreenButton.addEventListener('click', () => {
+            //     requestFullscreen();
+            //     fullscreenButton.style.display = 'none'; // Hide button after entering fullscreen
+            // });
+
+
+        // Check connection
+        socket.on('connect', () => {
+            console.log('Connected to the server');
+        });
+    </script>
+</body>
+
+</html>
