@@ -9,7 +9,7 @@ const { Server } = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
-app.use(cors());
+app.use(cors({ origin: '*' }));
 
 // Serve static files (HTML, CSS, JS) from the "public" folder
 app.use(express.static('public'));
