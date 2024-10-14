@@ -36,7 +36,7 @@ io.on('connection', (socket) => {
     // });
       io.emit('locationUpdate', data);
          // Log after emitting
-         //   console.log('Location update emitted successfully');
+           console.log('Location update emitted successfully');
 });
 });
 // io.on('connection', (socket) => {
