@@ -167,6 +167,8 @@
         
     </style>
     <script src="/socket.io/socket.io.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 </head>
 
 <body>
@@ -175,7 +177,6 @@
     <div class="google-logo">
         <img src="google_maps_logo.png" alt="Google Maps Logo" width="100px">
     </div>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
       const socket = io();
 
@@ -224,6 +225,25 @@
         // Create a marker
         const marker = L.marker([0, 0]).addTo(map);
 
+
+         // Function to get current GPS position
+            function getCurrentPosition() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition((position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        map.setView([lat, lng], 15); // Center the map at the current position
+                        L.marker([lat, lng]).addTo(map).bindPopup('You are here!').openPopup();
+                    }, (error) => {
+                        console.error('Error obtaining location:', error);
+                    });
+                } else {
+                    console.error("Geolocation is not supported by this browser.");
+                }
+            }
+
+            // Trigger to get current position
+            getCurrentPosition();
         socket.on('locationUpdate', (data) => {
             const { latitude, longitude } = data;
             // console.log('Location update received in frontend:', data); // Log the received data
@@ -275,6 +295,15 @@
     }, { once: false }); // Ensures fullscreen is only requested once
 
        
+    // Optional: Draw a route from current position to the sender's location
+        const currentLatLng = map.getCenter();
+        L.Routing.control({
+            waypoints: [
+                L.latLng(currentLatLng.lat, currentLatLng.lng),
+                L.latLng(latitude, longitude)
+            ],
+            routeWhileDragging: true
+        }).addTo(map);
 
 
         // Check connection
