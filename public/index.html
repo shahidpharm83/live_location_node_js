@@ -227,21 +227,21 @@
 
 
          // Function to get current GPS position
-            function getCurrentPosition() {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition((position) => {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        map.setView([lat, lng], 15); // Center the map at the current position
-                        L.marker([lat, lng]).addTo(map).bindPopup('You are here!').openPopup();
-                    }, (error) => {
-                        console.error('Error obtaining location:', error);
-                    });
-                } else {
-                    console.error("Geolocation is not supported by this browser.");
-                }
-            }
-            getCurrentPosition();
+            // function getCurrentPosition() {
+            //     if (navigator.geolocation) {
+            //         navigator.geolocation.getCurrentPosition((position) => {
+            //             const lat = position.coords.latitude;
+            //             const lng = position.coords.longitude;
+            //             map.setView([lat, lng], 15); // Center the map at the current position
+            //             L.marker([lat, lng]).addTo(map).bindPopup('You are here!').openPopup();
+            //         }, (error) => {
+            //             console.error('Error obtaining location:', error);
+            //         });
+            //     } else {
+            //         console.error("Geolocation is not supported by this browser.");
+            //     }
+            // }
+            // getCurrentPosition();
 
 
             // Trigger to get current position
