@@ -241,6 +241,8 @@
                     console.error("Geolocation is not supported by this browser.");
                 }
             }
+            getCurrentPosition();
+
 
             // Trigger to get current position
         socket.on('locationUpdate', (data) => {
@@ -270,7 +272,6 @@
             //     console.error('Invalid coordinates received');
             // }
 
-            getCurrentPosition();
 
             // Optional: Draw a route from current position to the sender's location
             const currentLatLng = map.getCenter();
