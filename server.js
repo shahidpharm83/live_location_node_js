@@ -21,31 +21,31 @@ app.use(cors({
 // app.use(express.static('public'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-io.on('connection', (socket) => {
-    console.log('A user connected:', socket.id);
+// io.on('connection', (socket) => {
+//     console.log('A user connected:', socket.id);
 
-    // Listen for location updates from the Flutter client
-    socket.on('locationUpdate', (data) => {
-       console.log('Location update received from Flutter:', data);
+//     // Listen for location updates from the Flutter client
+//     socket.on('locationUpdate', (data) => {
+//        console.log('Location update received from Flutter:', data);
 
-         // Decode base64 image
-    // const imageBuffer = Buffer.from(data.username, 'base64');
-    // const imagePath = path.join(__dirname, 'uploads', `${data.userimage}_image.png`);
+//          // Decode base64 image
+//     // const imageBuffer = Buffer.from(data.username, 'base64');
+//     // const imagePath = path.join(__dirname, 'uploads', `${data.userimage}_image.png`);
 
-    // // Save the image on the server
-    // fs.writeFile(imagePath, imageBuffer, (err) => {
-    //   if (err) throw err;
-    //   console.log('Image saved!');
-    //     // Broadcast the location update to all connected clients
-    //     io.emit('locationUpdate', data);
-    //      // Log after emitting
-    //         console.log('Location update emitted successfully');
-    // });
-      io.emit('locationUpdate', data);
-         // Log after emitting
-           console.log('Location update emitted successfully');
-});
-});
+//     // // Save the image on the server
+//     // fs.writeFile(imagePath, imageBuffer, (err) => {
+//     //   if (err) throw err;
+//     //   console.log('Image saved!');
+//     //     // Broadcast the location update to all connected clients
+//     //     io.emit('locationUpdate', data);
+//     //      // Log after emitting
+//     //         console.log('Location update emitted successfully');
+//     // });
+//       io.emit('locationUpdate', data);
+//          // Log after emitting
+//            console.log('Location update emitted successfully');
+// });
+// });
 // io.on('connection', (socket) => {
 //     console.log('A user connected:', socket.id);
 
@@ -74,6 +74,16 @@ io.on('connection', (socket) => {
 //     });
 //   });
 // });
+io.on('connection', (socket) => {
+    console.log('A user connected:', socket.id);
+
+    // Listen for location updates from the Flutter client
+    socket.on('locationUpdate', (data) => {
+        console.log('Location update received from Flutter:', data); // Debug log
+        io.emit('locationUpdate', data);
+        console.log('Location update emitted to all clients'); // Debug log
+    });
+});
 
 server.listen(3000, () => {
     console.log('Server is running on port 3000');
