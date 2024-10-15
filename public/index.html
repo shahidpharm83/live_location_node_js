@@ -222,7 +222,7 @@
             if (userMarker) {
                 userMarker.setLatLng([data.latitude, data.longitude]);
             } else {
-                userMarker = L.marker([latitude, longitude], { icon: icon })
+                userMarker = L.marker([data.latitude, data.longitude], { icon: icon })
                     .addTo(map)
                     .bindPopup(`<b>${data.userimage}</b>`);
             }
