@@ -243,7 +243,6 @@
             }
 
             // Trigger to get current position
-            getCurrentPosition();
         socket.on('locationUpdate', (data) => {
             const { latitude, longitude } = data;
             // console.log('Location update received in frontend:', data); // Log the received data
@@ -270,6 +269,20 @@
             // } else {
             //     console.error('Invalid coordinates received');
             // }
+
+            getCurrentPosition();
+
+            // Optional: Draw a route from current position to the sender's location
+            const currentLatLng = map.getCenter();
+            L.Routing.control({
+                waypoints: [
+                    L.latLng(currentLatLng.lat, currentLatLng.lng),
+                    L.latLng(data.latitude, data.longitude)
+                ],
+                routeWhileDragging: true
+            }).addTo(map);
+
+
         });
 
         // Fullscreen logic
@@ -294,16 +307,6 @@
         requestFullscreen();
     }, { once: false }); // Ensures fullscreen is only requested once
 
-       
-    // Optional: Draw a route from current position to the sender's location
-        const currentLatLng = map.getCenter();
-        L.Routing.control({
-            waypoints: [
-                L.latLng(currentLatLng.lat, currentLatLng.lng),
-                L.latLng(data.latitude, data.longitude)
-            ],
-            routeWhileDragging: true
-        }).addTo(map);
 
 
         // Check connection
