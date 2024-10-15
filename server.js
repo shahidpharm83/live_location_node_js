@@ -79,9 +79,9 @@ io.on('connection', (socket) => {
 
     // Listen for location updates from the Flutter client
     socket.on('locationUpdate', (data) => {
-        // console.log('Location update received from Flutter:', data); // Debug log
+        console.log('Location update received from Flutter:', data); // Debug log
         io.emit('locationUpdate', data);
-        // console.log('Location update emitted to all clients'); // Debug log
+        console.log('Location update emitted to all clients'); // Debug log
     });
 });
 
