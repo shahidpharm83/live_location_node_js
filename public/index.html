@@ -142,13 +142,18 @@
 
            /* Google Maps Logo Styling with Transparent Background */
         .google-logo {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            z-index: 1000;
-            /* Remove background for transparency */
-            padding: 5px;
-        }
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    z-index: 1000;
+    padding: 5px;
+    opacity: 0.8; /* Make the logo slightly transparent */
+}
+
+.google-logo img {
+    max-width: 80px; /* Adjust the size to be responsive */
+    height: auto;    /* Maintain aspect ratio */
+}
 
         .user-marker {
             border-radius: 50%;
@@ -186,16 +191,31 @@
                 attribution: '&copy; <a href="https://www.google.com/intl/en_us/help/terms_maps.html">Google</a> - Street View'
             });
 
-          const googleHybridLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
-                maxZoom: 19,
-                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-                attribution: '&copy; <a href="https://www.google.com/intl/en_us/help/terms_maps.html">Google</a> - Hybrid (Satellite + Labels)'
-            });
+            const googleHybridLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=y,h&x={x}&y={y}&z={z}', {
+                    maxZoom: 19,
+                    subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                    attribution: '&copy; <a href="https://www.google.com/intl/en_us/help/terms_maps.html">Google</a> - Hybrid (Satellite + Labels)'
+                });
+
+
+                const googleTerrainLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=t&x={x}&y={y}&z={z}', {
+                        maxZoom: 19,
+                        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                        attribution: '&copy; <a href="https://www.google.com/intl/en_us/help/terms_maps.html">Google</a> - Terrain'
+                    });
+
+                    const googleTrafficLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=m,h&x={x}&y={y}&z={z}', {
+                        maxZoom: 19,
+                        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                        attribution: '&copy; <a href="https://www.google.com/intl/en_us/help/terms_maps.html">Google</a> - Traffic'
+                    });
 
 
     const baseLayers = {
         "Map View": googleStreetLayer,
-        "Satellite View": googleHybridLayer
+        "Satellite View": googleHybridLayer,
+        "Terrain View": googleTerrainLayer,
+        "Show Traffic": googleTrafficLayer
     };
 
      // Create a marker variable to store the user's marker
