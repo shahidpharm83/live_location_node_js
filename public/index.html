@@ -210,22 +210,22 @@
                 className: 'user-marker'
             });
             // Update marker position and map view
-            // marker.setLatLng([data.latitude, data.longitude]);
-            // map.setView([data.latitude, data.longitude], 15);
-            // L.marker([data.latitude, data.longitude], { icon: icon })
-            //     .addTo(map)
-            //     .bindPopup(`<b>${data.userimage}</b>`);
+            marker.setLatLng([data.latitude, data.longitude]);
+            map.setView([data.latitude, data.longitude], 15);
+            L.marker([data.latitude, data.longitude], { icon: icon })
+                .addTo(map)
+                .bindPopup(`<b>${data.userimage}</b>`);
             // } else {
             //     console.error('Invalid coordinates received');
             // }
             // Update marker position or create a new marker if it doesn't exist
-            if (userMarker) {
-                userMarker.setLatLng([data.latitude, data.longitude]);
-            } else {
-                userMarker = L.marker([data.latitude, data.longitude], { icon: icon })
-                    .addTo(map)
-                    .bindPopup(`<b>${data.userimage}</b>`);
-            }
+            // if (userMarker) {
+            //     userMarker.setLatLng([data.latitude, data.longitude]);
+            // } else {
+            //     userMarker = L.marker([data.latitude, data.longitude], { icon: icon })
+            //         .addTo(map)
+            //         .bindPopup(`<b>${data.userimage}</b>`);
+            // }
 
 
         });
