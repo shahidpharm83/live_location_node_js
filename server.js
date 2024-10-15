@@ -12,7 +12,8 @@ const io = new Server(server);
 app.use(cors({ origin: 'https://live-location-node-js.onrender.com/' }));
 
 // Serve static files (HTML, CSS, JS) from the "public" folder
-app.use(express.static('public'));
+// app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
