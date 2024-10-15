@@ -274,14 +274,14 @@
 
 
             // Optional: Draw a route from current position to the sender's location
-            const currentLatLng = map.getCenter();
-            L.Routing.control({
-                waypoints: [
-                    L.latLng(currentLatLng.lat, currentLatLng.lng),
-                    L.latLng(data.latitude, data.longitude)
-                ],
-                routeWhileDragging: true
-            }).addTo(map);
+            // const currentLatLng = map.getCenter();
+            // L.Routing.control({
+            //     waypoints: [
+            //         L.latLng(currentLatLng.lat, currentLatLng.lng),
+            //         L.latLng(data.latitude, data.longitude)
+            //     ],
+            //     routeWhileDragging: true
+            // }).addTo(map);
 
 
         });
