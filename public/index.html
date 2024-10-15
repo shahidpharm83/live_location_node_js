@@ -186,16 +186,16 @@
                 attribution: '&copy; <a href="https://www.google.com/intl/en_us/help/terms_maps.html">Google</a> - Street View'
             });
 
-            const googleSatelliteLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+          const googleHybridLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
                 maxZoom: 19,
                 subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-                attribution: '&copy; <a href="https://www.google.com/intl/en_us/help/terms_maps.html">Google</a> - Satellite View'
+                attribution: '&copy; <a href="https://www.google.com/intl/en_us/help/terms_maps.html">Google</a> - Hybrid (Satellite + Labels)'
             });
 
 
     const baseLayers = {
         "Map View": googleStreetLayer,
-        "Satellite View": googleSatelliteLayer
+        "Satellite View": googleHybridLayer
     };
 
      // Create a marker variable to store the user's marker
