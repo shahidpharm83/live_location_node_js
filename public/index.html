@@ -156,8 +156,6 @@
 
 <body>
     <div id="map"></div>
-
-
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
       const socket = io();
@@ -165,20 +163,14 @@
         // Initialize the map
         const map = L.map('map').setView([0, 0], 2); // Start with a view at latitude 0, longitude 0
 
-        // Load and display OpenStreetMap tiles
-        // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        //     maxZoom: 19,
-        // }).addTo(map);
-
-          // Define tile layers
+            // Define tile layers
             const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-            }).addTo(map); // Default to street view
+                    maxZoom: 19,
+                }); // Default to street view
 
             const satelliteLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
             });
-            let userMarker;
 
     const baseLayers = {
         "Street View": streetLayer,
@@ -191,10 +183,8 @@
         const marker = L.marker([0, 0]).addTo(map);
 
         socket.on('locationUpdate', (data) => {
-            const { lat, lng } = data;
+            const { latitude, longitude } = data;
             // console.log('Location update received in frontend:', data); // Log the received data
-
-
             // if (lat && lng) {
             // Log before updating
             //console.log('Updating marker and centering map...');
@@ -218,16 +208,6 @@
             // } else {
             //     console.error('Invalid coordinates received');
             // }
-            // Update marker position or create a new marker if it doesn't exist
-            // if (userMarker) {
-            //     userMarker.setLatLng([data.latitude, data.longitude]);
-            // } else {
-            //     userMarker = L.marker([data.latitude, data.longitude], { icon: icon })
-            //         .addTo(map)
-            //         .bindPopup(`<b>${data.userimage}</b>`);
-            // }
-
-
         });
 
         // Fullscreen logic
@@ -246,18 +226,13 @@
         // Trigger fullscreen on first touch
             window.addEventListener('touchstart', () => {
                 requestFullscreen();
-            }, { once: true }); // Ensures fullscreen is only requested once
+            }, { once: false }); // Ensures fullscreen is only requested once
 
     window.addEventListener('click', () => {
         requestFullscreen();
-    }, { once: true }); // Ensures fullscreen is only requested once
+    }, { once: false }); // Ensures fullscreen is only requested once
 
-            // // Fallback Fullscreen Button logic
-            // const fullscreenButton = document.getElementById('fullscreen-btn');
-            // fullscreenButton.addEventListener('click', () => {
-            //     requestFullscreen();
-            //     fullscreenButton.style.display = 'none'; // Hide button after entering fullscreen
-            // });
+       
 
 
         // Check connection
