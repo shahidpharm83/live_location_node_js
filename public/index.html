@@ -151,7 +151,7 @@
                 className: 'user-marker'
             });
             // Update marker position and map view
-            // marker.setLatLng([data.latitude, data.longitude]);
+            marker.setLatLng([data.latitude, data.longitude]);
             map.setView([data.latitude, data.longitude], 15);
             L.marker([data.latitude, data.longitude], { icon: icon })
                 .addTo(map)
