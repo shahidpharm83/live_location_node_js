@@ -142,7 +142,7 @@
             // console.log(data.latitude);
 
             // Convert base64 image back to image source
-            const imgSrc = `data:image/png;base64,${data.username}`;
+            const imgSrc = `data:image/png;base64,${data.userimage}`;
 
             // Add a marker with a custom icon (user's image) and popup (username)
             const icon = L.icon({
@@ -155,7 +155,7 @@
             map.setView([data.latitude, data.longitude], 15);
             L.marker([data.latitude, data.longitude], { icon: icon })
                 .addTo(map)
-                .bindPopup(`<b>${data.userimage}</b>`);
+                .bindPopup(`<b>${data.username}</b>`);
             // } else {
             //     console.error('Invalid coordinates received');
             // }
