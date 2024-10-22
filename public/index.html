@@ -47,8 +47,9 @@
             border-radius: 50%;
             /* Makes the icon circular */
             overflow: hidden;
-            width: 20px;
-            height: 20px;
+            width: 30px;
+            height: 30px;
+            border-color: red;
         }
 
         /* Optional fullscreen button */
@@ -151,7 +152,7 @@
                 className: 'user-marker'
             });
             // Update marker position and map view
-            marker.setLatLng([data.latitude, data.longitude]);
+            // marker.setLatLng([data.latitude, data.longitude]);
             map.setView([data.latitude, data.longitude], 15);
             L.marker([data.latitude, data.longitude], { icon: icon })
                 .addTo(map)
