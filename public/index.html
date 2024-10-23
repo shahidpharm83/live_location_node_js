@@ -47,8 +47,8 @@
             border-radius: 50%;
             /* Makes the icon circular */
             overflow: hidden;
-            width: 30px;
-            height: 30px;
+            width: 100px;
+            height: 100px;
             border-color: red;
         }
 
@@ -70,8 +70,27 @@
       const socket = io();
 
         // Initialize the map
-        const map = L.map('map').setView([0, 0], 2); // Start with a view at latitude 0, longitude 0
+        const map = L.map('map').setView([0, 0], 20); // Start with a view at latitude 0, longitude 0
     
+        const marker = L.marker([0, 0]).addTo(map);
+
+
+            //  Function to get current GPS position
+            function getCurrentPosition() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition((position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        map.setView([lat, lng], 15); // Center the map at the current position
+                        L.marker([lat, lng]).addTo(map).bindPopup('You are here!').openPopup();
+                    }, (error) => {
+                        console.error('Error obtaining location:', error);
+                    });
+                } else {
+                    console.error("Geolocation is not supported by this browser.");
+                }
+            }
+            getCurrentPosition();
         // Define tile layers
 
         // Define Google Maps layers
@@ -112,31 +131,13 @@
      googleStreetLayer.addTo(map);
     L.control.layers(baseLayers).addTo(map);
         // Create a marker
-        const marker = L.marker([0, 0]).addTo(map);
-
-
-         // Function to get current GPS position
-            // function getCurrentPosition() {
-            //     if (navigator.geolocation) {
-            //         navigator.geolocation.getCurrentPosition((position) => {
-            //             const lat = position.coords.latitude;
-            //             const lng = position.coords.longitude;
-            //             map.setView([lat, lng], 15); // Center the map at the current position
-            //             L.marker([lat, lng]).addTo(map).bindPopup('You are here!').openPopup();
-            //         }, (error) => {
-            //             console.error('Error obtaining location:', error);
-            //         });
-            //     } else {
-            //         console.error("Geolocation is not supported by this browser.");
-            //     }
-            // }
-            // getCurrentPosition();
+      
 
 
             // Trigger to get current position
         socket.on('locationUpdate', (data) => {
             const { latitude, longitude } = data;
-             console.log('Location update received in frontend:', data); // Log the received data
+            //  console.log('Location update received in frontend:', data); // Log the received data
             // if (lat && lng) {
             // Log before updating
             //console.log('Updating marker and centering map...');
@@ -148,12 +149,12 @@
             // Add a marker with a custom icon (user's image) and popup (username)
             const icon = L.icon({
                 iconUrl: imgSrc,
-                iconSize: [20, 20],
+                iconSize: [100, 100],
                 className: 'user-marker'
             });
             // Update marker position and map view
             // marker.setLatLng([data.latitude, data.longitude]);
-            map.setView([data.latitude, data.longitude], 15);
+            map.setView([data.latitude, data.longitude], 20);
             L.marker([data.latitude, data.longitude], { icon: icon })
                 .addTo(map)
                 .bindPopup(`<b>${data.username}</b>`);
