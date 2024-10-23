@@ -70,7 +70,7 @@
       const socket = io();
 
         // Initialize the map
-        const map = L.map('map').setView([0, 0], 15); // Start with a view at latitude 0, longitude 0
+        const map = L.map('map').setView([0, 0], 13); // Start with a view at latitude 0, longitude 0
     
         const marker = L.marker([0, 0]).addTo(map);
 
@@ -139,7 +139,7 @@
             });
             // Update marker position and map view
             // marker.setLatLng([data.latitude, data.longitude]);
-            map.setView([data.latitude, data.longitude], 15);
+            map.setView([data.latitude, data.longitude], 13);
             L.marker([data.latitude, data.longitude], { icon: icon })
                 .addTo(map)
                 .bindPopup(`<b>${data.username}</b>`);
@@ -152,7 +152,7 @@
                     navigator.geolocation.getCurrentPosition((position) => {
                         const lat = position.coords.latitude;
                         const lng = position.coords.longitude;
-                        map.setView([lat, lng], 15); // Center the map at the current position
+                        map.setView([lat, lng], 13); // Center the map at the current position
                         L.marker([lat, lng]).addTo(map).bindPopup('You are here!').openPopup();
                     }, (error) => {
                         console.error('Error obtaining location:', error);
