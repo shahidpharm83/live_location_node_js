@@ -262,17 +262,17 @@
         }
       }
 
-      function calculateRoute(start, end) {
-        if (routingControl) {
-          map.removeControl(routingControl); // Remove existing route
-        }
+      // function calculateRoute(start, end) {
+      //   if (routingControl) {
+      //     map.removeControl(routingControl); // Remove existing route
+      //   }
 
-        routingControl = L.Routing.control({
-          waypoints: [L.latLng(start[0], start[1]), L.latLng(end[0], end[1])],
-          routeWhileDragging: true,
-          geocoder: L.Control.Geocoder.nominatim(),
-        }).addTo(map);
-      }
+      //   routingControl = L.Routing.control({
+      //     waypoints: [L.latLng(start[0], start[1]), L.latLng(end[0], end[1])],
+      //     routeWhileDragging: true,
+      //     geocoder: L.Control.Geocoder.nominatim(),
+      //   }).addTo(map);
+      // }
       // Trigger to get current position
       socket.on("locationUpdate", (data) => {
         const { latitude, longitude } = data;
