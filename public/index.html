@@ -143,21 +143,22 @@
   </div>
 
   <div id="toggle-button" style="position: absolute; bottom: 10px; right: 10px; z-index: 1000">
-    <button id='toggle-panel-button'">Toggle Route Info</button>
+    <button onclick="toggleSidePanel">Toggle Route Info</button>
     </div>
 
 
-   <div id=" side-panel">
-      <h3>Route Information</h3>
-      <div id="distance"></div>
-      <div id="duration"></div>
-      <div id="start-time"></div>
-      <div id="end-time"></div>
-      <div id="eta"></div>
-      <h4>Steps:</h4>
-      <ul id="steps-list"></ul>
-      <button onclick="toggleSidePanel()">Close</button>
-  </div>
+   <div id="side-panel">
+  <h3>Route Information</h3>
+  <div id="distance"></div>
+  <div id="duration"></div>
+  <div id="start-time"></div>
+  <div id="end-time"></div>
+  <div id="eta"></div>
+  <h4>Steps:</h4>
+  <ul id="steps-list"></ul>
+  <button id="toggle-button">Close</button>
+</div>
+
   <script>
     const socket = io();
     let userMarker; // To store the user's current position marker
@@ -467,6 +468,25 @@
       return `${hours}h ${minutes}m`;
     }
 
+
+    document.addEventListener("DOMContentLoaded", function() {
+  const sidePanel = document.getElementById("side-panel");
+  const toggleButton = document.getElementById("toggle-button");
+  let sidePanelOpen = true; // Assume the panel is open initially
+
+  // Function to toggle the visibility of the side panel
+  function toggleSidePanel() {
+    sidePanelOpen = !sidePanelOpen;
+    sidePanel.style.display = sidePanelOpen ? "block" : "none";
+    toggleButton.textContent = sidePanelOpen ? "Close" : "Open";
+  }
+
+  // Add event listener to the button
+  toggleButton.addEventListener("click", toggleSidePanel);
+
+  // Assuming the side panel is open initially, set it to display "block"
+  sidePanel.style.display = "block";
+});
     // Example usage: Calculate route when the map is clicked
     map.on('click', function (e) {
       const start = [51.505, -0.09]; // Replace with actual start coordinates
