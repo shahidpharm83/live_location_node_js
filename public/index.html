@@ -156,8 +156,8 @@
     <button onclick="toggleSidePanel()">Close</button>
 </div>
 
-    <script type="module">
-      import { io } from 'socket.io-client';
+    <script >
+      const io = require('socket.io-client');
       const socket = io('https://live-location-node-js-1.onrender.com/'); 
       let userMarker; // To store the user's current position marker
       let routingControl; // To store the routing control
