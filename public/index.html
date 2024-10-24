@@ -88,9 +88,9 @@
       }
       /* Optional fullscreen button */
     </style>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+    <script src="/socket.io/socket.io.js" defer></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js" defer></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js" defer></script>
   </head>
 
   <body>
@@ -291,9 +291,15 @@
 
         // marker.setLatLng([data.latitude, data.longitude]);
         map.setView([data.latitude, data.longitude], currentZoom);
-        L.marker([data.latitude, data.longitude], { icon: icon })
-          .addTo(map)
-          .bindPopup(`<b>${data.username}</b>`);
+       // Update the user marker's position
+    if (userMarker) {
+        userMarker.setLatLng([latitude, longitude]); // Update existing marker position
+    } else {
+        userMarker = L.marker([latitude, longitude], { icon: icon })
+            .addTo(map)
+            .bindPopup(`<b>${data.username}</b>`)
+            .openPopup(); // Create marker if it doesn't exist
+    }
         // } else {
         //     console.error('Invalid coordinates received');
         // }
@@ -388,8 +394,6 @@
 
     let sidePanelOpen = false;
 
-    document.getElementById("toggle-panel-button").addEventListener("click", toggleSidePanel);
-
   function toggleSidePanel() {
         const sidePanel = document.getElementById("side-panel");
         sidePanelOpen = !sidePanelOpen;
@@ -468,6 +472,10 @@ function formatDuration(duration) {
       socket.on("connect", () => {
         console.log("Connected to the server");
       });
+
+      // Your JavaScript code here
+      document.getElementById("toggle-panel-button").addEventListener("click", toggleSidePanel);
+    </script>
     </script>
   </body>
 </html>
