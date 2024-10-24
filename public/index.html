@@ -88,7 +88,7 @@
       }
       /* Optional fullscreen button */
     </style>
-    <script src="/socket.io/socket.io.js" defer></script>
+    
 
      <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
@@ -155,9 +155,8 @@
     <ul id="steps-list"></ul>
     <button onclick="toggleSidePanel()">Close</button>
 </div>
-
+<script src="/socket.io/socket.io.js" defer></script>
     <script >
-      const io = require('socket.io-client');
       const socket = io('https://live-location-node-js-1.onrender.com/'); 
       let userMarker; // To store the user's current position marker
       let routingControl; // To store the routing control
