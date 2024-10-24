@@ -89,6 +89,7 @@
       /* Optional fullscreen button */
     </style>
     
+<script src="/socket.io/socket.io.js" defer></script>
 
      <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
@@ -155,7 +156,6 @@
     <ul id="steps-list"></ul>
     <button onclick="toggleSidePanel()">Close</button>
 </div>
-<script src="/socket.io/socket.io.js" defer></script>
     <script >
       const socket = io();
       let userMarker; // To store the user's current position marker
