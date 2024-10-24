@@ -55,16 +55,16 @@
         border-color: red;
       }
       #side-panel {
-        position: absolute;
-        top: 10%;
-        right: 10%;
-        width: 300px;
-        background: white;
-        border: 1px solid #ccc;
-        padding: 10px;
-        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-      }
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: white;
+            padding: 10px;
+            border: 1px solid #ccc;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none; /* Hidden by default */
+        }
 
       #side-panel h3 {
         margin-top: 0;
@@ -89,8 +89,11 @@
       /* Optional fullscreen button */
     </style>
     <script src="/socket.io/socket.io.js" defer></script>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js" defer></script>
-    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js" defer></script>
+
+     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
   </head>
 
   <body>
