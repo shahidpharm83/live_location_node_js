@@ -157,7 +157,11 @@
 </div>
 <script src="/socket.io/socket.io.js" defer></script>
     <script >
-      const socket = io('https://live-location-node-js-1.onrender.com/'); 
+      // Import the socket.io-client package
+const io = require('socket.io-client');
+
+// Connect to the Socket.IO server
+const socket = io('https://live-location-node-js-1.onrender.com/');
       let userMarker; // To store the user's current position marker
       let routingControl; // To store the routing control
       let redLine; // To store the red line polyline
@@ -475,6 +479,10 @@ function formatDuration(duration) {
       socket.on("connect", () => {
         console.log("Connected to the server");
       });
+
+      socket.on('disconnect', () => {
+    console.log('Disconnected from server');
+});
 
       // Your JavaScript code here
       document.getElementById("toggle-panel-button").addEventListener("click", toggleSidePanel);
