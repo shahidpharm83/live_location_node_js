@@ -1,25 +1,27 @@
-const express = require('express');
-const cors = require('cors');
+const express = require("express");
+const cors = require("cors");
 
-const fs = require('fs');
-const path = require('path');
-const http = require('http');
-const { Server } = require('socket.io');
+const fs = require("fs");
+const path = require("path");
+const http = require("http");
+const { Server } = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 // app.use(cors({ origin: 'https://live-location-node-js.onrender.com/' }));
 
-app.use(cors({
-  origin: 'https://live-location-node-js.onrender.com', // or '*' for all origins
-  methods: ['GET', 'POST'],
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: "https://live-location-node-js.onrender.com", // or '*' for all origins
+    methods: ["GET", "POST"],
+    credentials: true,
+  })
+);
 
 // Serve static files (HTML, CSS, JS) from the "public" folder
 // app.use(express.static('public'));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
 // io.on('connection', (socket) => {
 //     console.log('A user connected:', socket.id);
@@ -51,8 +53,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //   socket.on('locationUpdate', (data) => {
 //     const { userName, userImage, locationData } = data;
-        // console.log('Location update received from Flutter:', data);
-
+// console.log('Location update received from Flutter:', data);
 
 //     // Decode base64 image
 //     const imageBuffer = Buffer.from(userName, 'base64');
@@ -74,17 +75,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 //     });
 //   });
 // });
-io.on('connection', (socket) => {
-    console.log('A user connected:', socket.id);
+io.on("connection", (socket) => {
+  console.log("A user connected:", socket.id);
 
-    // Listen for location updates from the Flutter client
-    socket.on('locationUpdate', (data) => {
-        // console.log('Location update received from Flutter:', data); // Debug log
-        io.emit('locationUpdate', data);
-        // console.log('Location update emitted to all clients'); // Debug log
-    });
+  // Listen for location updates from the Flutter client
+  socket.on("locationUpdate", (data) => {
+    // console.log('Location update received from Flutter:', data); // Debug log
+    io.emit("locationUpdate", data);
+    console.log('Location update emitted to all clients'); // Debug log
+  });
 });
 
 server.listen(3000, () => {
-    console.log('Server is running on port 3000');
+  console.log("Server is running on port 3000");
 });

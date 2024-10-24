@@ -1,210 +1,398 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>See my real-time location on Google Maps! | Visit Google Maps to check out my real-time location. With the Google Maps App you can share your location with friends and family too.</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      See my real-time location on Google Maps! | Visit Google Maps to check out
+      my real-time location. With the Google Maps App you can share your
+      location with friends and family too.
+    </title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <link rel="shortcut icon" href="#" />
+    <link rel="shortcut icon" href="path/to/favicon.ico" />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body,
-        html {
-            height: 100%;
-            overflow: hidden;
-            /* Prevent scrolling */
-        }
+      body,
+      html {
+        height: 100%;
+        overflow: hidden; /* Prevent scrolling */
+      }
 
-        #map {
-            height: 100vh;
-            /* Full viewport height */
-            width: 100vw;
-            /* Full viewport width */
-        }
+      #map {
+        height: 100vh; /* Full viewport height */
+        width: 100vw; /* Full viewport width */
+      }
 
-           /* Google Maps Logo Styling with Transparent Background */
-        .google-logo {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    z-index: 1000;
-    padding: 5px;
-    opacity: 0.8; /* Make the logo slightly transparent */
-}
+      .google-logo {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        z-index: 1000;
+        padding: 5px;
+        opacity: 0.8;
+      }
 
-.google-logo img {
-    max-width: 80px; /* Adjust the size to be responsive */
-    height: auto;    /* Maintain aspect ratio */
-}
+      .google-logo img {
+        max-width: 80px; /* Responsive size */
+        height: auto; /* Maintain aspect ratio */
+      }
 
-        .user-marker {
-            border-radius: 50%;
-            /* Makes the icon circular */
-            overflow: hidden;
-            width: 50px;
-            height: 50px;
-            border-color: red;
-        }
+      .user-marker {
+        border-radius: 50%;
+        /* Makes the icon circular */
+        overflow: hidden;
+        width: 50px;
+        height: 50px;
+        border-color: red;
+      }
 
-        /* Optional fullscreen button */
-        
+      #side-panel {
+        position: absolute;
+        top: 10%;
+        right: 10%;
+        width: 300px;
+        background: white;
+        border: 1px solid #ccc;
+        padding: 10px;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: none; /* Hidden by default */
+      }
+
+      #side-panel h3 {
+        margin-top: 0;
+      }
+
+      #toggle-button button,
+      #current-position-btn button {
+        padding: 10px 15px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      }
+
+      #toggle-button button:hover,
+      #current-position-btn button:hover {
+        background-color: #0056b3;
+      }
     </style>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
-</head>
+  </head>
 
-<body>
+  <body>
     <div id="map"></div>
-    <!-- Google Maps Logo Overlay with transparent background -->
     <div class="google-logo">
-        <img src="google_maps_logo.png" alt="Google Maps Logo" width="100px">
+      <img src="google_maps_logo.png" alt="Google Maps Logo" width="100px" />
     </div>
+
+    <div
+      id="current-position-btn"
+      style="
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 1000;
+      "
+    >
+      <button
+        aria-label="Get Current Position"
+        onclick="getCurrentPosition()"
+        style="
+          width: 50px;
+          height: 50px;
+          border: none;
+          border-radius: 50%;
+          background-color: #4285f4;
+          color: white;
+          font-size: 24px;
+          cursor: pointer;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+          transition: background-color 0.3s;
+        "
+      >
+        📍
+      </button>
+    </div>
+
+    <div
+      id="toggle-button"
+      style="position: absolute; bottom: 60px; right: 10px; z-index: 1000"
+    >
+      <button id="toggle-panel-button" aria-label="Toggle Route Info">
+        Toggle Route Info
+      </button>
+    </div>
+
+    <div id="side-panel">
+      <h3>Route Information</h3>
+      <div id="distance"></div>
+      <div id="duration"></div>
+      <div id="start-time"></div>
+      <div id="end-time"></div>
+      <div id="eta"></div>
+      <ul id="steps-list"></ul>
+      <button onclick="toggleSidePanel()">Close</button>
+    </div>
+
     <script>
       const socket = io();
+      let userMarker;
+      let routingControl;
+      let redLine;
+      const coordinates = [];
+      let initialZoom = 5;
+      let currentZoom = initialZoom;
 
-        // Initialize the map
-        const map = L.map('map').setView([0, 0], 13); // Start with a view at latitude 0, longitude 0
-    
-        const marker = L.marker([0, 0]).addTo(map);
+      const map = L.map("map").setView([0, 0], currentZoom);
+      const googleStreetLayer = L.tileLayer(
+        "https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
+        {
+          maxZoom: 30,
+          subdomains: ["mt0", "mt1", "mt2", "mt3"],
+          attribution:
+            '&copy; <a href="https://www.google.com/intl/en_us/help/terms_maps.html">Google</a> - Street View',
+        }
+      );
 
+      const googleHybridLayer = L.tileLayer(
+        "https://{s}.google.com/vt/lyrs=y,h&x={x}&y={y}&z={z}",
+        {
+          maxZoom: 30,
+          subdomains: ["mt0", "mt1", "mt2", "mt3"],
+          attribution:
+            '&copy; <a href="https://www.google.com/intl/en_us/help/terms_maps.html">Google</a> - Hybrid (Satellite + Labels)',
+        }
+      );
 
-          
-        // Define tile layers
+      const googleTerrainLayer = L.tileLayer(
+        "https://{s}.google.com/vt?lyrs=p&x={x}&y={y}&z={z}",
+        {
+          maxZoom: 30,
+          subdomains: ["mt0", "mt1", "mt2", "mt3"],
+          attribution:
+            '&copy; <a href="https://www.google.com/intl/en_us/help/terms_maps.html">Google</a> - Terrain',
+        }
+      );
 
-        // Define Google Maps layers
-            const googleStreetLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-                maxZoom: 15,
-                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-                attribution: '&copy; <a href="https://www.google.com/intl/en_us/help/terms_maps.html">Google</a> - Street View'
-            });
+      const googleTrafficLayer = L.tileLayer(
+        "https://{s}.google.com/vt/lyrs=m,h&x={x}&y={y}&z={z}",
+        {
+          maxZoom: 30,
+          subdomains: ["mt0", "mt1", "mt2", "mt3"],
+          attribution:
+            '&copy; <a href="https://www.google.com/intl/en_us/help/terms_maps.html">Google</a> - Traffic',
+        }
+      );
 
-            const googleHybridLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=y,h&x={x}&y={y}&z={z}', {
-                    maxZoom: 16,
-                    subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-                    attribution: '&copy; <a href="https://www.google.com/intl/en_us/help/terms_maps.html">Google</a> - Hybrid (Satellite + Labels)'
-                });
-
-
-                const googleTerrainLayer = L.tileLayer('https://{s}.google.com/vt?lyrs=p&x={x}&y={y}&z={z}', {
-                        maxZoom: 15,
-                        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-                        attribution: '&copy; <a href="https://www.google.com/intl/en_us/help/terms_maps.html">Google</a> - Terrain'
-                    });
-
-                    const googleTrafficLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=m,h&x={x}&y={y}&z={z}', {
-                        maxZoom: 15,
-                        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-                        attribution: '&copy; <a href="https://www.google.com/intl/en_us/help/terms_maps.html">Google</a> - Traffic'
-                    });
-
-
-    const baseLayers = {
+      const baseLayers = {
         "Map View": googleStreetLayer,
         "Satellite View": googleHybridLayer,
         "Terrain View": googleTerrainLayer,
-        "Show Traffic": googleTrafficLayer
-    };
+        "Show Traffic": googleTrafficLayer,
+      };
 
-     // Create a marker variable to store the user's marker
-     googleStreetLayer.addTo(map);
-    L.control.layers(baseLayers).addTo(map);
-        // Create a marker
-      
+      googleStreetLayer.addTo(map);
+      L.control.layers(baseLayers).addTo(map);
 
+      function getCurrentPosition() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const lat = position.coords.latitude;
+              const lng = position.coords.longitude;
 
-            // Trigger to get current position
-        socket.on('locationUpdate', (data) => {
-            const { latitude, longitude } = data;
-            //  console.log('Location update received in frontend:', data); // Log the received data
-            // if (lat && lng) {
-            // Log before updating
-            //console.log('Updating marker and centering map...');
-            // console.log(data.latitude);
+              map.setView([lat, lng], currentZoom);
 
-            // Convert base64 image back to image source
-            const imgSrc = `data:image/png;base64,${data.userimage}`;
-
-            // Add a marker with a custom icon (user's image) and popup (username)
-            const icon = L.icon({
-                iconUrl: imgSrc,
-                iconSize: [40, 40],
-                className: 'user-marker'
-            });
-            // Update marker position and map view
-            // marker.setLatLng([data.latitude, data.longitude]);
-            map.setView([data.latitude, data.longitude], 15);
-            L.marker([data.latitude, data.longitude], { icon: icon })
-                .addTo(map)
-                .bindPopup(`<b>${data.username}</b>`);
-            // } else {
-            //     console.error('Invalid coordinates received');
-            // }
-            //  Function to get current GPS position
-            function getCurrentPosition() {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition((position) => {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        map.setView([lat, lng], 15); // Center the map at the current position
-                        L.marker([lat, lng]).addTo(map).bindPopup('You are here!').openPopup();
-                    }, (error) => {
-                        console.error('Error obtaining location:', error);
-                    });
-                } else {
-                    console.error("Geolocation is not supported by this browser.");
-                }
+              if (userMarker) {
+                userMarker.setLatLng([lat, lng]);
+              } else {
+                userMarker = L.marker([lat, lng])
+                  .addTo(map)
+                  .bindPopup("You are here!")
+                  .openPopup();
+              }
+            },
+            (error) => {
+              alert(
+                "Unable to retrieve your location. Please ensure location services are enabled."
+              );
+              console.error("Error obtaining location:", error);
             }
-            getCurrentPosition();
+          );
+        } else {
+          alert("Geolocation is not supported by this browser.");
+        }
+      }
 
-            // Optional: Draw a route from current position to the sender's location
-            const currentLatLng = map.getCenter();
-            L.Routing.control({
-                waypoints: [
-                    L.latLng(currentLatLng.lat, currentLatLng.lng),
-                    L.latLng(data.latitude, data.longitude)
-                ],
-                routeWhileDragging: true
-            }).addTo(map);
+      function calculateRoute(start, end) {
+        if (routingControl) {
+          map.removeControl(routingControl);
+        }
 
+        routingControl = L.Routing.control({
+          waypoints: [L.latLng(start[0], start[1]), L.latLng(end[0], end[1])],
+          routeWhileDragging: true,
+          geocoder: L.Control.Geocoder.nominatim(),
+        }).addTo(map);
 
+        routingControl.on("routesfound", function (e) {
+          const route = e.routes[0];
+          updateSidePanel(route);
         });
 
-        // Fullscreen logic
-            function requestFullscreen() {
-                if (document.documentElement.requestFullscreen) {
-                    document.documentElement.requestFullscreen();
-                } else if (document.documentElement.mozRequestFullScreen) { // Firefox
-                    document.documentElement.mozRequestFullScreen();
-                } else if (document.documentElement.webkitRequestFullscreen) { // Chrome, Safari, and Opera
-                    document.documentElement.webkitRequestFullscreen();
-                } else if (document.documentElement.msRequestFullscreen) { // IE/Edge
-                    document.documentElement.msRequestFullscreen();
-                }
-            }
-
-        // Trigger fullscreen on first touch
-            window.addEventListener('touchstart', () => {
-                requestFullscreen();
-            }, { once: false }); // Ensures fullscreen is only requested once
-
-    window.addEventListener('click', () => {
-        requestFullscreen();
-    }, { once: false }); // Ensures fullscreen is only requested once
-
-
-
-        // Check connection
-        socket.on('connect', () => {
-            console.log('Connected to the server');
+        routingControl.on("routingerror", function (error) {
+          console.error("Routing error:", error);
+          alert("Could not calculate route. Please try again.");
         });
+      }
+
+      function updateSidePanel(route) {
+        const distance = route.summary.totalDistance;
+        const duration = route.summary.totalTime;
+        const startTime = new Date();
+        const endTime = new Date(startTime.getTime() + duration * 1000);
+        const eta = endTime.toLocaleTimeString();
+
+        document.getElementById("distance").innerText =
+          formatDistance(distance);
+        document.getElementById("duration").innerText =
+          formatDuration(duration);
+        document.getElementById("start-time").innerText =
+          startTime.toLocaleTimeString();
+        document.getElementById("end-time").innerText =
+          endTime.toLocaleTimeString();
+        document.getElementById("eta").innerText = eta;
+
+        const stepsList = document.getElementById("steps-list");
+        stepsList.innerHTML = "";
+        route.steps.forEach((step, index) => {
+          const roadName = step.name || "Unnamed road";
+          const listItem = document.createElement("li");
+          listItem.innerText = `Step ${index + 1}: ${roadName}`;
+          stepsList.appendChild(listItem);
+        });
+
+        // Show side panel if it's not already open
+        if (document.getElementById("side-panel").style.display === "none") {
+          toggleSidePanel();
+        }
+      }
+
+      function toggleSidePanel() {
+        const sidePanel = document.getElementById("side-panel");
+        sidePanel.style.display =
+          sidePanel.style.display === "none" ? "block" : "none";
+      }
+
+      function formatDistance(distance) {
+        return (distance / 1000).toFixed(2) + " km"; // Convert to km
+      }
+
+      function formatDuration(duration) {
+        const hours = Math.floor(duration / 3600);
+        const minutes = Math.floor((duration % 3600) / 60);
+        return `${hours}h ${minutes}m`;
+      }
+
+      map.on("click", function (e) {
+        if (userMarker) {
+          const start = [
+            userMarker.getLatLng().lat,
+            userMarker.getLatLng().lng,
+          ];
+          const end = [e.latlng.lat, e.latlng.lng];
+          calculateRoute(start, end);
+        }
+      });
+
+      socket.on("locationUpdate", (data) => {
+        const { latitude, longitude } = data;
+        console.log("Location update received in frontend:", data); // Log the received data
+
+        // Convert base64 image back to image source
+        const imgSrc = `data:image/png;base64,${data.userimage}`;
+
+        // Add a marker with a custom icon (user's image) and popup (username)
+        const icon = L.icon({
+          iconUrl: imgSrc,
+          iconSize: [40, 40],
+          className: "user-marker",
+        });
+
+        // marker.setLatLng([data.latitude, data.longitude]);
+        map.setView([data.latitude, data.longitude], currentZoom);
+        L.marker([data.latitude, data.longitude], { icon: icon })
+          .addTo(map)
+          .bindPopup(`<b>${data.username}</b>`);
+
+        // Add the new coordinate to the array
+        coordinates.push([latitude, longitude]);
+
+        // Update the red line and apply the bounds only if redLine is defined
+        if (redLine) {
+          redLine.addLatLng([latitude, longitude]);
+
+          // Fit the map to the bounds of the red line
+          map.fitBounds(redLine.getBounds());
+          // map.fitBounds(window.redLine.getBounds());
+        } else {
+          // Create the red line if it doesn't exist
+          redLine = L.polyline(coordinates, {
+            color: "red",
+            weight: 5,
+            opacity: 0.7,
+          }).addTo(map);
+        }
+
+        // Center the map on the last coordinate without changing zoom level
+        map.setView([latitude, longitude], currentZoom);
+      });
+
+      function requestFullscreen() {
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen();
+        } else if (document.documentElement.mozRequestFullScreen) {
+          // Firefox
+          document.documentElement.mozRequestFullScreen();
+        } else if (document.documentElement.webkitRequestFullscreen) {
+          // Chrome, Safari, and Opera
+          document.documentElement.webkitRequestFullscreen();
+        } else if (document.documentElement.msRequestFullscreen) {
+          // IE/Edge
+          document.documentElement.msRequestFullscreen();
+        }
+      }
+
+      // Trigger fullscreen on first touch
+      window.addEventListener(
+        "touchstart",
+        () => {
+          requestFullscreen();
+        },
+        { once: false }
+      ); // Ensures fullscreen is only requested once
+
+      window.addEventListener(
+        "click",
+        () => {
+          requestFullscreen();
+        },
+        { once: false }
+      ); // Ensures fullscreen is only requested once
     </script>
-</body>
-
+  </body>
 </html>
