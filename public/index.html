@@ -157,6 +157,7 @@
 </div>
 
     <script>
+      import { io } from 'socket.io-client';
       const socket = io();
       let userMarker; // To store the user's current position marker
       let routingControl; // To store the routing control
