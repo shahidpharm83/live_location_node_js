@@ -9,7 +9,7 @@
       location with friends and family too.
     </title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <link rel="shortcut icon" href="path/to/favicon.ico" />
+    <link rel="shortcut icon" href="./map_icon.png" />
     <style>
       * {
         margin: 0;
@@ -20,25 +20,29 @@
       body,
       html {
         height: 100%;
-        overflow: hidden; /* Prevent scrolling */
+        overflow: hidden;
+        /* Prevent scrolling */
       }
 
       #map {
-        height: 100vh; /* Full viewport height */
-        width: 100vw; /* Full viewport width */
+        height: 100vh;
+        /* Full viewport height */
+        width: 100vw;
+        /* Full viewport width */
       }
 
+      /* Google Maps Logo Styling with Transparent Background */
       .google-logo {
         position: absolute;
         bottom: 10px;
         left: 10px;
         z-index: 1000;
         padding: 5px;
-        opacity: 0.8;
+        opacity: 0.8; /* Make the logo slightly transparent */
       }
 
       .google-logo img {
-        max-width: 80px; /* Responsive size */
+        max-width: 80px; /* Adjust the size to be responsive */
         height: auto; /* Maintain aspect ratio */
       }
 
@@ -50,7 +54,6 @@
         height: 50px;
         border-color: red;
       }
-
       #side-panel {
         position: absolute;
         top: 10%;
@@ -61,15 +64,13 @@
         padding: 10px;
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
         z-index: 1000;
-        display: none; /* Hidden by default */
       }
 
       #side-panel h3 {
         margin-top: 0;
       }
 
-      #toggle-button button,
-      #current-position-btn button {
+      #toggle-button button {
         padding: 10px 15px;
         background-color: #007bff;
         color: white;
@@ -79,10 +80,13 @@
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
       }
 
-      #toggle-button button:hover,
-      #current-position-btn button:hover {
+      #toggle-button button:hover {
         background-color: #0056b3;
       }
+      #current-position-btn button:hover {
+        background-color: #357ae8; /* A darker shade of blue */
+      }
+      /* Optional fullscreen button */
     </style>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -91,6 +95,7 @@
 
   <body>
     <div id="map"></div>
+    <!-- Google Maps Logo Overlay with transparent background -->
     <div class="google-logo">
       <img src="google_maps_logo.png" alt="Google Maps Logo" width="100px" />
     </div>
@@ -106,16 +111,15 @@
       "
     >
       <button
-        aria-label="Get Current Position"
         onclick="getCurrentPosition()"
         style="
           width: 50px;
           height: 50px;
           border: none;
           border-radius: 50%;
-          background-color: #4285f4;
+          background-color: #4285f4; /* Google blue */
           color: white;
-          font-size: 24px;
+          font-size: 24px; /* Adjust font size for icon */
           cursor: pointer;
           display: flex;
           justify-content: center;
@@ -124,40 +128,63 @@
           transition: background-color 0.3s;
         "
       >
-        📍
+        
+        <!-- You can use an icon here -->
       </button>
     </div>
 
     <div
       id="toggle-button"
-      style="position: absolute; bottom: 60px; right: 10px; z-index: 1000"
+      style="position: absolute; bottom: 10px; right: 10px; z-index: 1000"
     >
-      <button id="toggle-panel-button" aria-label="Toggle Route Info">
-        Toggle Route Info
-      </button>
+      <button onclick="toggleSidePanel()">Toggle Route Info</button>
     </div>
 
-    <div id="side-panel">
+
+    <button id="toggle-panel-button">Toggle Route Info</button>
+<div id="side-panel">
+    <div id="distance"></div>
+    <div id="duration"></div>
+    <div id="start-time"></div>
+    <div id="end-time"></div>
+    <div id="eta"></div>
+    <ul id="steps-list"></ul>
+</div>
       <h3>Route Information</h3>
-      <div id="distance"></div>
-      <div id="duration"></div>
-      <div id="start-time"></div>
-      <div id="end-time"></div>
-      <div id="eta"></div>
-      <ul id="steps-list"></ul>
+      
+<div id="side-panel">
+    <div id="distance"></div>
+    <div id="duration"></div>
+    <div id="start-time"></div>
+    <div id="end-time"></div>
+    <div id="eta"></div>
+    <ul id="steps-list"></ul>
+</div>
       <button onclick="toggleSidePanel()">Close</button>
     </div>
-
     <script>
       const socket = io();
-      let userMarker;
-      let routingControl;
-      let redLine;
-      const coordinates = [];
-      let initialZoom = 5;
-      let currentZoom = initialZoom;
+      let userMarker; // To store the user's current position marker
+      let routingControl; // To store the routing control
+      let redLine; // To store the red line polyline
+      const coordinates = []; // Array to hold coordinates for the red line
+      let initialZoom = 13; // Set your desired fixed zoom level
+      // Initialize the map with the fixed zoom level
+      let currentZoom = initialZoom; // Initialize currentZoom with the initial zoom level
 
-      const map = L.map("map").setView([0, 0], currentZoom);
+      const map = L.map("map").setView([0, 0], currentZoom); // Start with a fixed zoom level
+
+      const marker = L.marker([0, 0]).addTo(map);
+
+      /// Function to handle zoom events
+      function handleZoomChange() {
+        currentZoom = map.getZoom(); // Update the current zoom level
+        console.log(`Current zoom level: ${currentZoom}`);
+      }
+
+      // Add event listeners for zoom events
+      map.on("zoomend", handleZoomChange);
+      // Define Google Maps layers
       const googleStreetLayer = L.tileLayer(
         "https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
         {
@@ -205,9 +232,12 @@
         "Show Traffic": googleTrafficLayer,
       };
 
+      // Create a marker variable to store the user's marker
       googleStreetLayer.addTo(map);
       L.control.layers(baseLayers).addTo(map);
+      // Create a marker
 
+      // Function to get the current position
       function getCurrentPosition() {
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
@@ -215,8 +245,10 @@
               const lat = position.coords.latitude;
               const lng = position.coords.longitude;
 
+              // Set view to current position with fixed zoom
               map.setView([lat, lng], currentZoom);
 
+              // Add or update user marker
               if (userMarker) {
                 userMarker.setLatLng([lat, lng]);
               } else {
@@ -227,20 +259,17 @@
               }
             },
             (error) => {
-              alert(
-                "Unable to retrieve your location. Please ensure location services are enabled."
-              );
               console.error("Error obtaining location:", error);
             }
           );
         } else {
-          alert("Geolocation is not supported by this browser.");
+          console.error("Geolocation is not supported by this browser.");
         }
       }
 
       function calculateRoute(start, end) {
         if (routingControl) {
-          map.removeControl(routingControl);
+          map.removeControl(routingControl); // Remove existing route
         }
 
         routingControl = L.Routing.control({
@@ -248,80 +277,15 @@
           routeWhileDragging: true,
           geocoder: L.Control.Geocoder.nominatim(),
         }).addTo(map);
-
-        routingControl.on("routesfound", function (e) {
-          const route = e.routes[0];
-          updateSidePanel(route);
-        });
-
-        routingControl.on("routingerror", function (error) {
-          console.error("Routing error:", error);
-          alert("Could not calculate route. Please try again.");
-        });
       }
-
-      function updateSidePanel(route) {
-        const distance = route.summary.totalDistance;
-        const duration = route.summary.totalTime;
-        const startTime = new Date();
-        const endTime = new Date(startTime.getTime() + duration * 1000);
-        const eta = endTime.toLocaleTimeString();
-
-        document.getElementById("distance").innerText =
-          formatDistance(distance);
-        document.getElementById("duration").innerText =
-          formatDuration(duration);
-        document.getElementById("start-time").innerText =
-          startTime.toLocaleTimeString();
-        document.getElementById("end-time").innerText =
-          endTime.toLocaleTimeString();
-        document.getElementById("eta").innerText = eta;
-
-        const stepsList = document.getElementById("steps-list");
-        stepsList.innerHTML = "";
-        route.steps.forEach((step, index) => {
-          const roadName = step.name || "Unnamed road";
-          const listItem = document.createElement("li");
-          listItem.innerText = `Step ${index + 1}: ${roadName}`;
-          stepsList.appendChild(listItem);
-        });
-
-        // Show side panel if it's not already open
-        if (document.getElementById("side-panel").style.display === "none") {
-          toggleSidePanel();
-        }
-      }
-
-      function toggleSidePanel() {
-        const sidePanel = document.getElementById("side-panel");
-        sidePanel.style.display =
-          sidePanel.style.display === "none" ? "block" : "none";
-      }
-
-      function formatDistance(distance) {
-        return (distance / 1000).toFixed(2) + " km"; // Convert to km
-      }
-
-      function formatDuration(duration) {
-        const hours = Math.floor(duration / 3600);
-        const minutes = Math.floor((duration % 3600) / 60);
-        return `${hours}h ${minutes}m`;
-      }
-
-      map.on("click", function (e) {
-        if (userMarker) {
-          const start = [
-            userMarker.getLatLng().lat,
-            userMarker.getLatLng().lng,
-          ];
-          const end = [e.latlng.lat, e.latlng.lng];
-          calculateRoute(start, end);
-        }
-      });
-
+      // Trigger to get current position
       socket.on("locationUpdate", (data) => {
         const { latitude, longitude } = data;
         console.log("Location update received in frontend:", data); // Log the received data
+        // if (lat && lng) {
+        // Log before updating
+        //console.log('Updating marker and centering map...');
+        // console.log(data.latitude);
 
         // Convert base64 image back to image source
         const imgSrc = `data:image/png;base64,${data.userimage}`;
@@ -332,15 +296,44 @@
           iconSize: [40, 40],
           className: "user-marker",
         });
+        // Update marker position and map view
 
         // marker.setLatLng([data.latitude, data.longitude]);
         map.setView([data.latitude, data.longitude], currentZoom);
         L.marker([data.latitude, data.longitude], { icon: icon })
           .addTo(map)
           .bindPopup(`<b>${data.username}</b>`);
+        // } else {
+        //     console.error('Invalid coordinates received');
+        // }
+        //  Function to get current GPS position
 
+        // Optional: Draw a route from current position to the sender's location
+        // const currentLatLng = map.getCenter();
+        // L.Routing.control({
+        //   waypoints: [
+        //     L.latLng(currentLatLng.lat, currentLatLng.lng),
+        //     L.latLng(data.latitude, data.longitude),
+        //   ],
+        //   routeWhileDragging: true,
+        // }).addTo(map);
+        // Clear any existing lines (optional)
+        // Add the new coordinate to the array
+        // Add the new coordinate to the array
         // Add the new coordinate to the array
         coordinates.push([latitude, longitude]);
+
+        // If redLine doesn't exist yet, create it
+        // if (!redLine) {
+        //   redLine = L.polyline(coordinates, {
+        //     color: "red",
+        //     weight: 5,
+        //     opacity: 0.7,
+        //   }).addTo(map);
+        // } else {
+        //   // Otherwise, update the existing polyline by adding new coordinates
+        //   redLine.addLatLng([latitude, longitude]);
+        // }
 
         // Update the red line and apply the bounds only if redLine is defined
         if (redLine) {
@@ -360,8 +353,16 @@
 
         // Center the map on the last coordinate without changing zoom level
         map.setView([latitude, longitude], currentZoom);
+
+        // Set the view to the new location without changing the zoom level
+        // map.setView([latitude, longitude], map.getZoom());
+        // Update the route if the user marker is available
+        // if (userMarker) {
+        //     calculateRoute([userMarker.getLatLng().lat, userMarker.getLatLng().lng], [latitude, longitude]);
+        // }
       });
 
+      // Fullscreen logic
       function requestFullscreen() {
         if (document.documentElement.requestFullscreen) {
           document.documentElement.requestFullscreen();
@@ -393,6 +394,89 @@
         },
         { once: false }
       ); // Ensures fullscreen is only requested once
+
+    let sidePanelOpen = false;
+
+    document.getElementById("toggle-panel-button").addEventListener("click", toggleSidePanel);
+
+  function toggleSidePanel() {
+        const sidePanel = document.getElementById("side-panel");
+        sidePanelOpen = !sidePanelOpen;
+        sidePanel.style.display = sidePanelOpen ? "block" : "none";
+    }
+
+    function calculateRoute(start, end) {
+        if (routingControl) {
+            map.removeControl(routingControl);
+        }
+
+        routingControl = L.Routing.control({
+            waypoints: [L.latLng(start[0], start[1]), L.latLng(end[0], end[1])],
+            routeWhileDragging: true,
+            geocoder: L.Control.Geocoder.nominatim(),
+        }).addTo(map);
+
+        routingControl.on("routesfound", function (e) {
+            const route = e.routes[0];
+            updateSidePanel(route);
+        });
+
+        routingControl.on("routingerror", function (error) {
+            console.error("Routing error:", error);
+            alert("Could not calculate route. Please try again.");
+        });
+    }
+
+    function updateSidePanel(route) {
+        const distance = route.summary.totalDistance;
+        const duration = route.summary.totalTime;
+        const startTime = new Date();
+        const endTime = new Date(startTime.getTime() + duration * 1000);
+        const eta = endTime.toLocaleTimeString();
+
+        document.getElementById("distance").innerText = formatDistance(distance);
+        document.getElementById("duration").innerText = formatDuration(duration);
+        document.getElementById("start-time").innerText = startTime.toLocaleTimeString();
+        document.getElementById("end-time").innerText = endTime.toLocaleTimeString();
+        document.getElementById("eta").innerText = eta;
+
+        const stepsList = document.getElementById("steps-list");
+        stepsList.innerHTML = "";
+        route.steps.forEach((step, index) => {
+            const roadName = step.name || "Unnamed road";
+            const listItem = document.createElement("li");
+            listItem.innerText = `Step ${index + 1}: ${roadName}`;
+            stepsList.appendChild(listItem);
+        });
+
+        // Show side panel if it's not already open
+        if (!sidePanelOpen) {
+            toggleSidePanel();
+        }
+    }
+
+    function formatDistance(distance) {
+        return (distance / 1000).toFixed(2) + " km"; // Convert to km
+    }
+
+    function formatDuration(duration) {
+        const hours = Math.floor(duration / 3600);
+        const minutes = Math.floor((duration % 3600) / 60);
+        return `${hours}h ${minutes}m`;
+    }
+
+    // Example usage: Calculate route when the map is clicked
+    map.on('click', function(e) {
+        const start = [51.505, -0.09]; // Replace with actual start coordinates
+        const end = [e.latlng.lat, e.latlng.lng]; // Clicked point as destination
+        calculateRoute(start, end);
+    });
+      // Check connection
+      socket.on("connect", () => {
+        console.log("Connected to the server");
+      });
     </script>
   </body>
 </html>
+
+
