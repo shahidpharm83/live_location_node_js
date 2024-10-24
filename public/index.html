@@ -141,27 +141,18 @@
     </div>
 
 
-    <button id="toggle-panel-button">Toggle Route Info</button>
-<div id="side-panel">
+   <div id="side-panel">
+    <h3>Route Information</h3>
     <div id="distance"></div>
     <div id="duration"></div>
     <div id="start-time"></div>
     <div id="end-time"></div>
     <div id="eta"></div>
+    <h4>Steps:</h4>
     <ul id="steps-list"></ul>
+    <button onclick="toggleSidePanel()">Close</button>
 </div>
-      <h3>Route Information</h3>
-      
-<div id="side-panel">
-    <div id="distance"></div>
-    <div id="duration"></div>
-    <div id="start-time"></div>
-    <div id="end-time"></div>
-    <div id="eta"></div>
-    <ul id="steps-list"></ul>
-</div>
-      <button onclick="toggleSidePanel()">Close</button>
-    </div>
+
     <script>
       const socket = io();
       let userMarker; // To store the user's current position marker
@@ -427,43 +418,45 @@
         });
     }
 
-    function updateSidePanel(route) {
-        const distance = route.summary.totalDistance;
-        const duration = route.summary.totalTime;
-        const startTime = new Date();
-        const endTime = new Date(startTime.getTime() + duration * 1000);
-        const eta = endTime.toLocaleTimeString();
+  function updateSidePanel(route) {
+    const distance = route.summary.totalDistance;
+    const duration = route.summary.totalTime;
+    const startTime = new Date();
+    const endTime = new Date(startTime.getTime() + duration * 1000);
+    const eta = endTime.toLocaleTimeString();
 
-        document.getElementById("distance").innerText = formatDistance(distance);
-        document.getElementById("duration").innerText = formatDuration(duration);
-        document.getElementById("start-time").innerText = startTime.toLocaleTimeString();
-        document.getElementById("end-time").innerText = endTime.toLocaleTimeString();
-        document.getElementById("eta").innerText = eta;
+    document.getElementById("distance").innerText = `Total Distance: ${formatDistance(distance)}`;
+    document.getElementById("duration").innerText = `Total Duration: ${formatDuration(duration)}`;
+    document.getElementById("start-time").innerText = `Start Time: ${startTime.toLocaleTimeString()}`;
+    document.getElementById("end-time").innerText = `End Time: ${endTime.toLocaleTimeString()}`;
+    document.getElementById("eta").innerText = `ETA: ${eta}`;
 
-        const stepsList = document.getElementById("steps-list");
-        stepsList.innerHTML = "";
-        route.steps.forEach((step, index) => {
-            const roadName = step.name || "Unnamed road";
-            const listItem = document.createElement("li");
-            listItem.innerText = `Step ${index + 1}: ${roadName}`;
-            stepsList.appendChild(listItem);
-        });
+    const stepsList = document.getElementById("steps-list");
+    stepsList.innerHTML = "";
+    
+    route.steps.forEach((step, index) => {
+        const roadName = step.name || "Unnamed road";
+        const turnDistance = step.distance; // Distance for this step
+        const listItem = document.createElement("li");
+        listItem.innerText = `Step ${index + 1}: ${roadName} - ${formatDistance(turnDistance)}`;
+        stepsList.appendChild(listItem);
+    });
 
-        // Show side panel if it's not already open
-        if (!sidePanelOpen) {
-            toggleSidePanel();
-        }
+    // Show side panel if it's not already open
+    if (document.getElementById("side-panel").style.display === "none") {
+        toggleSidePanel();
     }
+}
 
     function formatDistance(distance) {
-        return (distance / 1000).toFixed(2) + " km"; // Convert to km
-    }
+    return (distance / 1000).toFixed(2) + " km"; // Convert to km
+}
 
-    function formatDuration(duration) {
-        const hours = Math.floor(duration / 3600);
-        const minutes = Math.floor((duration % 3600) / 60);
-        return `${hours}h ${minutes}m`;
-    }
+function formatDuration(duration) {
+    const hours = Math.floor(duration / 3600);
+    const minutes = Math.floor((duration % 3600) / 60);
+    return `${hours}h ${minutes}m`;
+}
 
     // Example usage: Calculate route when the map is clicked
     map.on('click', function(e) {
