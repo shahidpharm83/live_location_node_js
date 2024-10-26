@@ -18,19 +18,27 @@
       box-sizing: border-box;
     }
 
-    body,
+    
     html {
       height: 100%;
       overflow: hidden;
       /* Prevent scrolling */
     }
+     body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            height: 100vh; /* Full height */
+            position: relative; /* Set position relative for absolute children */
+        }
 
-    #map {
-      height: 100vh;
-      /* Full viewport height */
-      width: 100vw;
-      /* Full viewport width */
-    }
+   #map {
+            height: 100%; /* Full height */
+            width: 100%; /* Full width */
+            position: absolute; /* Positioning */
+            top: 0;
+            left: 0;
+            z-index: 1; /* Below input group and route details */
+        }
 
     /* Google Maps Logo Styling with Transparent Background */
     .google-logo {
@@ -59,50 +67,41 @@
       border-color: red;
     }
 
-    #side-panel {
-            width: 300px;
-            background-color: #ffffff;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 15px;
-            position: fixed;
-            right: 20px;
-            top: 20px;
-            z-index: 1000; /* Ensure it appears above other elements */
+         #routeDetails {
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: rgba(249, 249, 249, 0.8); /* Light background */
+            width: 90%; /* Width of the route details */
+            max-width: 400px; /* Maximum width */
+            text-align: center; /* Center text */
+            margin-bottom: 10px; /* Space from the button */
+            z-index: 10; /* Higher than the map */
+            position: fixed; /* Fixed positioning */
+            bottom: 80px; /* Distance from the bottom */
+            left: 50%;
+            transform: translateX(-50%); /* Center it horizontally */
         }
-
-        #toggle-button {
+        button {
+            position: fixed; /* Make it fixed to the viewport */
+            bottom: 20px; /* Distance from the bottom */
+            right: 20px; /* Distance from the right */
             padding: 10px 15px;
-            background-color: #007bff; /* Bootstrap primary color */
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
+            background-color: #007BFF; /* Blue color */
+            color: white; /* Text color */
+            border: none; /* No border */
+            border-radius: 5px; /* Rounded corners */
+            cursor: pointer; /* Pointer cursor */
+            z-index: 1000; /* Ensure it stays above other elements */
         }
-
-        #toggle-button:hover {
+        button:hover {
             background-color: #0056b3; /* Darker blue on hover */
         }
-
-        #toggle-button:focus {
-            outline: none; /* Remove focus outline */
-        }
-
-    #side-panel h3 {
-      margin-top: 0;
-    }
-
-   
-
+        
     /* Optional fullscreen button */
   </style>
-
+  <script src="./leaflet.js"></script>
   <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
@@ -111,7 +110,15 @@
 </head>
 
 <body>
-  <div id="map"></div>
+ 
+
+   
+
+    <!-- Panel to display route data -->
+   <div id="routeDetails"></div>
+
+    <button id="showRouteButton" onclick="fetchRouteData()">Show Route</button>
+ <div id="map"></div>
   <!-- Google Maps Logo Overlay with transparent background -->
   <div class="google-logo">
     <img src="google_maps_logo.png" alt="Google Maps Logo" width="100px" />
@@ -143,24 +150,7 @@
       <!-- You can use an icon here -->
     </button>
   </div>
-
-  <div id="toggle-button" style="position: absolute; bottom: 10px; right: 10px; z-index: 1000">
-    <button onclick="toggleSidePanel">Toggle Route Info</button>
-    </div>
-
-
-   <div id="side-panel">
-  <h3>Route Information</h3>
-  <div id="distance"></div>
-  <div id="duration"></div>
-  <div id="start-time"></div>
-  <div id="end-time"></div>
-  <div id="eta"></div>
-  <h4>Steps:</h4>
-  <ul id="steps-list"></ul>
-  <button id="toggle-button">Close</button>
-</div>
-
+ 
   <script>
     const socket = io();
     let userMarker; // To store the user's current position marker
@@ -400,108 +390,56 @@
       { once: false }
     ); // Ensures fullscreen is only requested once
 
-    let sidePanelOpen = false;
+   
 
-    function toggleSidePanel() {
-      const sidePanel = document.getElementById("side-panel");
-      sidePanelOpen = !sidePanelOpen;
-      sidePanel.style.display = sidePanelOpen ? "block" : "none";
+
+
+// Function to fetch route data from the server
+const fetchRouteData = async () => {
+    try {
+        const response = await fetch('/api/getRoute');
+        const data2 = await response.json();
+        console.log('Route Data:', data2); // Log the entire response data
+
+        // Process and display route details
+        displayRouteData(data2);
+    } catch (error) {
+        console.error('Error fetching route data:', error);
     }
+};
 
-    function calculateRoute(start, end) {
-      if (routingControl) {
-        map.removeControl(routingControl);
-      }
+// Function to display route details in the UI
+// Function to display route details in the UI
+// Function to display route data
+const displayRouteData = (data2) => {
+  const routeDetails = document.getElementById("routeDetails");
+  routeDetails.innerHTML = ""; // Clear previous data
 
-      routingControl = L.Routing.control({
-        waypoints: [L.latLng(start[0], start[1]), L.latLng(end[0], end[1])],
-        routeWhileDragging: true,
-        geocoder: L.Control.Geocoder.nominatim(),
-      }).addTo(map);
+  // Display Route Summary
+  const routeInfo = document.createElement("div");
+  routeInfo.innerHTML = `
+    <h3>Route Summary</h3>
+    <p>Distance: ${data2.route.distance} meters</p>
+    <p>Duration: ${data2.route.duration} seconds</p>
+  `;
+  routeDetails.appendChild(routeInfo);
 
-      routingControl.on("routesfound", function (e) {
-        const route = e.routes[0];
-        updateSidePanel(route);
-      });
-
-      routingControl.on("routingerror", function (error) {
-        console.error("Routing error:", error);
-        alert("Could not calculate route. Please try again.");
-      });
-    }
-
-    function updateSidePanel(route) {
-      const distance = route.summary.totalDistance;
-      const duration = route.summary.totalTime;
-      const startTime = new Date();
-      const endTime = new Date(startTime.getTime() + duration * 1000);
-      const eta = endTime.toLocaleTimeString();
-
-      document.getElementById("distance").innerText = `Total Distance: ${formatDistance(distance)}`;
-      document.getElementById("duration").innerText = `Total Duration: ${formatDuration(duration)}`;
-      document.getElementById("start-time").innerText = `Start Time: ${startTime.toLocaleTimeString()}`;
-      document.getElementById("end-time").innerText = `End Time: ${endTime.toLocaleTimeString()}`;
-      document.getElementById("eta").innerText = `ETA: ${eta}`;
-
-      const stepsList = document.getElementById("steps-list");
-      stepsList.innerHTML = "";
-
-      route.steps.forEach((step, index) => {
-        const roadName = step.name || "Unnamed road";
-        const turnDistance = step.distance; // Distance for this step
-        const listItem = document.createElement("li");
-        listItem.innerText = `Step ${index + 1}: ${roadName} - ${formatDistance(turnDistance)}`;
-        stepsList.appendChild(listItem);
-      });
-
-      // Show side panel if it's not already open
-      if (document.getElementById("side-panel").style.display === "none") {
-        toggleSidePanel();
-      }
-    }
-
-    function formatDistance(distance) {
-      return (distance / 1000).toFixed(2) + " km"; // Convert to km
-    }
-
-    function formatDuration(duration) {
-      const hours = Math.floor(duration / 3600);
-      const minutes = Math.floor((duration % 3600) / 60);
-      return `${hours}h ${minutes}m`;
-    }
+  // Display Waypoints
+  const waypointInfo = document.createElement("div");
+  waypointInfo.innerHTML = `<h4>Waypoints:</h4>`;
+  data.waypoints.forEach((waypoint, index) => {
+    const wpElement = document.createElement("p");
+    wpElement.innerHTML = `Waypoint ${index + 1}: [${waypoint.location[1]}, ${waypoint.location[0]}]`;
+    waypointInfo.appendChild(wpElement);
+  });
+  routeDetails.appendChild(waypointInfo);
 
 
-    document.addEventListener("DOMContentLoaded", function() {
-  const sidePanel = document.getElementById("side-panel");
-  const toggleButton = document.getElementById("toggle-button");
-  let sidePanelOpen = true; // Assume the panel is open initially
+  console.log("Route displayed successfully");
+}
 
-  // Function to toggle the visibility of the side panel
-  function toggleSidePanel() {
-    sidePanelOpen = !sidePanelOpen;
-    sidePanel.style.display = sidePanelOpen ? "block" : "none";
-    toggleButton.textContent = sidePanelOpen ? "Close" : "Open";
-  }
 
-  // Add event listener to the button
-  toggleButton.addEventListener("click", toggleSidePanel);
-
-  // Assuming the side panel is open initially, set it to display "block"
-  sidePanel.style.display = "block";
-});
-    // Example usage: Calculate route when the map is clicked
-    map.on('click', function (e) {
-      const start = [51.505, -0.09]; // Replace with actual start coordinates
-      const end = [e.latlng.lat, e.latlng.lng]; // Clicked point as destination
-      calculateRoute(start, end);
-    });
-    // Check connection
-    socket.on("connect", () => {
-      console.log("Connected to the server");
-    });
-
-    // Your JavaScript code here
-    document.getElementById("toggle-panel-button").addEventListener("click", toggleSidePanel);
+     
   </script>
   </script>
 </body>
