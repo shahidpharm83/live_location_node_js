@@ -489,11 +489,13 @@
 
  socket.on("requestRouteData", (data3) => {
      const { startLat, startLng, endLat, endLng } = data3;
-      console.log("Start and end point received in frontend:", data3); 
+      console.log("Start and end received in frontend:", data3); 
  });
 
 
- 
+    fetch('api/getStartEndPoint') // Replace with your actual backend API endpoint
+      .then(response => response.json())
+      .then(data3 => {
         // Check if start and endpoint data are available
         if (data3.start && data3.end) {
           // If data is available, show the button
@@ -502,7 +504,10 @@
           // Hide the button if data is not available
           document.getElementById("showRouteButton").style.display = "none";
         }
-      
+      })
+      .catch(error => {
+        console.error('Error fetching route data:', error);
+      });
   }
 
   // Call checkRouteData when the page loads or as needed
