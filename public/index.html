@@ -456,6 +456,9 @@ function getRecipientPositionAndDirections() {
             .openPopup();
         }
 
+
+        console.log("Sender Position:", senderPosition);
+console.log("Recipient Position:", recipientPosition);
         // Fetch directions from sender to recipient
         fetchDirections(senderPosition, recipientPosition);
       },
@@ -483,7 +486,7 @@ function fetchDirections(sender, recipient) {
       const steps = route.legs[0].steps;
 
       // Display distance
-      document.getElementById("distance").innerText = `Distance: ${distance} km`;
+      document.getElementById("distance").innerText = `Distance from my location: ${distance} km`;
 
       // Display turn-by-turn directions
       const directionsList = document.getElementById("directions");
