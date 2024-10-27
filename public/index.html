@@ -262,6 +262,9 @@ let loadingTimeout;
 
     // Function to get the current position
    function getCurrentPosition() {
+
+getSenderPosition();
+
   if (navigator.geolocation) {
     // Show loading indicator
     showLoadingIndicator();
@@ -504,7 +507,6 @@ function fetchDirections(sender, recipient) {
 }
 
 // Start the process by getting the sender's position
-getSenderPosition();
 
    
   </script>
