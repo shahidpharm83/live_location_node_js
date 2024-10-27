@@ -219,6 +219,8 @@
     // Initialize the map with the fixed zoom level
     let currentZoom = initialZoom; // Initialize currentZoom with the initial zoom level
     let loadingTimeout;
+    let senderPosition = null;    // Store sender's position globally
+    let recipientPosition = null; // Store recipient position globally
 
     const map = L.map("map").setView([0, 0], currentZoom); // Start with a fixed zoom level
 
@@ -285,7 +287,6 @@
     L.control.layers(baseLayers).addTo(map);
 
     // Function to get the current position
-    let recipientPosition = null; // Store recipient position globally
 
     function getSenderPosition() {
       if (navigator.geolocation) {
@@ -385,6 +386,9 @@
       clearTimeout(loadingTimeout);
       document.getElementById("loadingIndicator").style.display = "none";
     }
+
+
+    function startListeningForSenderLocation() {
     // Trigger to get current position
     socket.on("locationUpdate", (data) => {
       const { latitude, longitude } = data;
@@ -402,6 +406,19 @@
 
       // marker.setLatLng([data.latitude, data.longitude]);
       map.setView([data.latitude, data.longitude], currentZoom);
+
+      //update sender position
+
+         senderPosition = { lat: latitude, lng: longitude };
+    console.log("Updated Sender Position from socket:", senderPosition);
+
+    // If recipient position is available, fetch directions
+    if (recipientPosition) {
+      fetchDirections(senderPosition, recipientPosition);
+    }
+
+
+
       // Update the user marker's position
       if (userMarker) {
         userMarker.setLatLng([latitude, longitude]); // Update existing marker position
@@ -433,7 +450,7 @@
       // Center the map on the last coordinate without changing zoom level
       map.setView([latitude, longitude], currentZoom);
     });
-
+  }
     // Fullscreen logic
     function requestFullscreen() {
       if (document.documentElement.requestFullscreen) {
@@ -468,7 +485,6 @@
     );
 
 
-    let senderPosition = null;    // Store sender's position globally
 
     function getSenderPosition() {
       if (navigator.geolocation) {
@@ -495,29 +511,28 @@
       }
     }
 
-    function getRecipientPosition() {
-      if (navigator.geolocation) {
-        // Use getCurrentPosition to get recipient's location only once
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            recipientPosition = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            };
-            console.log("Recipient Position:", recipientPosition);
+   // Function to retrieve recipient's fixed position once
+function getRecipientPosition() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        recipientPosition = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+        console.log("Recipient Position:", recipientPosition);
 
-            // Start watching sender's position after setting recipient position
-            getSenderPosition();
-          },
-          (error) => {
-            console.error("Error obtaining recipient's location:", error);
-          }
-        );
-      } else {
-        console.error("Geolocation is not supported by this browser.");
+        // Start listening for sender location updates after recipient is set
+        startListeningForSenderLocation();
+      },
+      (error) => {
+        console.error("Error obtaining recipient's location:", error);
       }
-    }
-
+    );
+  } else {
+    console.error("Geolocation is not supported by this browser.");
+  }
+}
     function fetchDirections(sender, recipient) {
       showLoadingIndicator(); // Show loading indicator with delay
       const url = `https://router.project-osrm.org/route/v1/driving/${sender.lng},${sender.lat};${recipient.lng},${recipient.lat}?overview=false`;
