@@ -140,7 +140,6 @@
 <body>
 
   <!-- Panel to display route data -->
-  <div id="routeDetails"></div>
 
   <button id="showRouteButton" onclick="fetchRouteData()" style="display: none;">Show Route</button>
   <div id="map"></div>
@@ -454,11 +453,60 @@
       }
     };
 
-    
+    // Function to display route details in the UI
+    const displayRouteData = (data2) => {
+      const routeDetails = document.getElementById("routeDetails");
+      routeDetails.innerHTML = ""; // Clear previous data
+
+      // Display Route Summary
+      const routeInfo = document.createElement("div");
+      routeInfo.innerHTML = `
+    <h3>Route Summary</h3>
+    <p>Distance: ${data2.route.distance} meters</p>
+    <p>Duration: ${data2.route.duration} seconds</p>
+  `;
+      routeDetails.appendChild(routeInfo);
+
+      // Display Waypoints
+      const waypointInfo = document.createElement("div");
+      waypointInfo.innerHTML = `<h4>Waypoints:</h4>`;
+      data2.waypoints.forEach((waypoint, index) => {
+        const wpElement = document.createElement("p");
+        wpElement.innerHTML = `Waypoint ${index + 1}: [${waypoint.location[1]}, ${waypoint.location[0]}]`;
+        waypointInfo.appendChild(wpElement);
+      });
+      routeDetails.appendChild(waypointInfo);
+
+
+      console.log("Route displayed successfully");
+    }
 
 
 
-    
+      // Example function to check for start and endpoint data from the backend
+  function checkRouteData() {
+
+ socket.on("requestRouteData", (data3) => {
+     const { startLat, startLng, endLat, endLng } = data3;
+      console.log("Start and end point received in frontend:", data3); 
+ });
+
+
+ 
+        // Check if start and endpoint data are available
+        if (data3.start && data3.end) {
+          // If data is available, show the button
+          document.getElementById("showRouteButton").style.display = "block";
+        } else {
+          // Hide the button if data is not available
+          document.getElementById("showRouteButton").style.display = "none";
+        }
+      
+  }
+
+  // Call checkRouteData when the page loads or as needed
+  window.onload = checkRouteData;
+
   </script>
   </script>
 </body>
