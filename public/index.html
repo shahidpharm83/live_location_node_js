@@ -167,6 +167,7 @@
     let initialZoom = 13; // Set your desired fixed zoom level
     // Initialize the map with the fixed zoom level
     let currentZoom = initialZoom; // Initialize currentZoom with the initial zoom level
+let loadingTimeout;
 
     const map = L.map("map").setView([0, 0], currentZoom); // Start with a fixed zoom level
 
@@ -282,13 +283,20 @@
   }
 }
 
+
 function showLoadingIndicator() {
-  document.getElementById("loadingIndicator").style.display = "block";
+  // Set a timeout to show the loading indicator after a delay
+  loadingTimeout = setTimeout(() => {
+    document.getElementById("loadingIndicator").style.display = "block";
+  }, 500); // 500 milliseconds delay (adjust as needed)
 }
 
 function hideLoadingIndicator() {
+  // Clear the timeout if the loading is completed before the delay
+  clearTimeout(loadingTimeout);
   document.getElementById("loadingIndicator").style.display = "none";
 }
+
 
     // Trigger to get current position
     socket.on("locationUpdate", (data) => {
