@@ -331,7 +331,7 @@ function hideLoadingIndicator() {
     // Trigger to get current position
     socket.on("locationUpdate", (data) => {
       const { latitude, longitude } = data;
-      console.log("Location update received in frontend:", data); // Log the received data
+      // console.log("Location update received in frontend:", data); // Log the received data
       // Convert base64 image back to image source
       const imgSrc = `data:image/png;base64,${data.userimage}`;
 
