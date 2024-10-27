@@ -73,57 +73,80 @@
       border-color: red;
     }
 
-  
+
     #loadingIndicator {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    z-index: 1000; /* Ensure it appears above other content */
-}
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 1000;
+      /* Ensure it appears above other content */
+    }
 
-.spinner {
-    border: 8px solid #f3f3f3; /* Light grey */
-    border-top: 8px solid #3498db; /* Blue */
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    animation: spin 1s linear infinite;
-}
+    .spinner {
+      border: 8px solid #f3f3f3;
+      /* Light grey */
+      border-top: 8px solid #3498db;
+      /* Blue */
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
 
 
-#panel {
-    position: fixed;          /* Fixed position */
-    bottom: 20px;            /* Space from the bottom */
-    left: 50%;               /* Center horizontally */
-    transform: translateX(-50%); /* Adjust to truly center */
-    background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
-    border: 1px solid #ccc;  /* Optional border */
-    border-radius: 8px;      /* Rounded corners */
-    padding: 15px;           /* Padding around content */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Optional shadow */
-    z-index: 1000;           /* Ensure it appears above other content */
-}
+    #panel {
+      position: fixed;
+      /* Fixed position */
+      bottom: 20px;
+      /* Space from the bottom */
+      left: 50%;
+      /* Center horizontally */
+      transform: translateX(-50%);
+      /* Adjust to truly center */
+      background-color: rgba(255, 255, 255, 0.9);
+      /* Semi-transparent background */
+      border: 1px solid #ccc;
+      /* Optional border */
+      border-radius: 8px;
+      /* Rounded corners */
+      padding: 15px;
+      /* Padding around content */
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      /* Optional shadow */
+      z-index: 1000;
+      /* Ensure it appears above other content */
+    }
 
-#panel h2 {
-    margin: 0;               /* Remove default margin */
-    font-size: 18px;         /* Set font size */
-}
+    #panel h2 {
+      margin: 0;
+      /* Remove default margin */
+      font-size: 18px;
+      /* Set font size */
+    }
 
-#directions {
-    list-style-type: none;   /* Remove bullet points */
-    padding: 0;              /* Remove default padding */
-}
+    #directions {
+      list-style-type: none;
+      /* Remove bullet points */
+      padding: 0;
+      /* Remove default padding */
+    }
 
-#directions li {
-    margin: 5px 0;          /* Spacing between list items */
-}
+    #directions li {
+      margin: 5px 0;
+      /* Spacing between list items */
+    }
 
     /* Optional fullscreen button */
   </style>
@@ -166,10 +189,11 @@
           box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
           transition: background-color 0.3s;
         ">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="white">
-    <path d="M12 2C8.13 2 5 5.13 5 9c0 3.61 7 11 7 11s7-7.39 7-11c0-3.87-3.13-7-7-7zm0 5a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"/>
-  </svg>
-</button>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="white">
+        <path
+          d="M12 2C8.13 2 5 5.13 5 9c0 3.61 7 11 7 11s7-7.39 7-11c0-3.87-3.13-7-7-7zm0 5a2 2 0 1 1 0 4 2 2 0 0 1 0-4z" />
+      </svg>
+    </button>
 
   </div>
 
@@ -177,12 +201,12 @@
     <h2>Directions</h2>
     <div id="distance"></div>
     <ul id="directions"></ul>
-</div>
+  </div>
 
-<div id="loadingIndicator" style="display: none;">
+  <div id="loadingIndicator" style="display: none;">
     <div class="spinner"></div>
     <p>Loading, please wait...</p>
-</div>
+  </div>
 
 
   <script>
@@ -194,7 +218,7 @@
     let initialZoom = 13; // Set your desired fixed zoom level
     // Initialize the map with the fixed zoom level
     let currentZoom = initialZoom; // Initialize currentZoom with the initial zoom level
-let loadingTimeout;
+    let loadingTimeout;
 
     const map = L.map("map").setView([0, 0], currentZoom); // Start with a fixed zoom level
 
@@ -261,108 +285,106 @@ let loadingTimeout;
     L.control.layers(baseLayers).addTo(map);
 
     // Function to get the current position
-   let recipientPosition = null; // Store recipient position globally
+    let recipientPosition = null; // Store recipient position globally
 
-function getSenderPosition() {
-  if (navigator.geolocation) {
-    // Use watchPosition for continuous tracking of sender's position
-    navigator.geolocation.watchPosition(
-      (position) => {
-        const senderPosition = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        };
-        console.log("Updated Sender Position:", senderPosition);
+    function getSenderPosition() {
+      if (navigator.geolocation) {
+        // Use watchPosition for continuous tracking of sender's position
+        navigator.geolocation.watchPosition(
+          (position) => {
+            const senderPosition = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            };
+            console.log("Updated Sender Position:", senderPosition);
 
-        // If recipient position is available, calculate directions
-        if (recipientPosition) {
-          fetchDirections(senderPosition, recipientPosition);
-        }
-      },
-      (error) => {
-        console.error("Error updating sender's location:", error);
-      }
-    );
-  } else {
-    console.error("Geolocation is not supported by this browser.");
-  }
-}
-
-function getRecipientPosition() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        recipientPosition = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        };
-        console.log("Recipient Position:", recipientPosition);
-
-        // Start tracking the sender's position after obtaining recipient's location
-        getSenderPosition();
-      },
-      (error) => {
-        console.error("Error obtaining recipient's location:", error);
-      }
-    );
-  } else {
-    console.error("Geolocation is not supported by this browser.");
-  }
-}
-
-function fetchDirections(sender, recipient) {
-  showLoadingIndicator(); // Show loading indicator with delay
-  const url = `https://router.project-osrm.org/route/v1/driving/${sender.lng},${sender.lat};${recipient.lng},${recipient.lat}?overview=false`;
-
-  fetch(url)
-    .then(response => response.json())
-    .then(data => {
-      console.log(data); // Log the response
-      hideLoadingIndicator(); // Hide loading indicator after fetching directions
-      if (data.routes && data.routes.length > 0) {
-        const route = data.routes[0];
-        const distance = (route.distance / 1000).toFixed(2); // Convert to kilometers
-        const steps = route.legs[0].steps;
-
-        // Display distance
-        document.getElementById("distance").innerText = `Distance: ${distance} km`;
-
-        // Display turn-by-turn directions
-        const directionsList = document.getElementById("directions");
-        directionsList.innerHTML = ""; // Clear previous directions
-        steps.forEach(step => {
-          const listItem = document.createElement("li");
-          listItem.innerText = step.maneuver.instruction;
-          directionsList.appendChild(listItem);
-        });
+            // If recipient position is available, calculate directions
+            if (recipientPosition) {
+              fetchDirections(senderPosition, recipientPosition);
+            }
+          },
+          (error) => {
+            console.error("Error updating sender's location:", error);
+          }
+        );
       } else {
-        console.error("No routes found in response:", data);
+        console.error("Geolocation is not supported by this browser.");
       }
-    })
-    .catch(error => {
-      hideLoadingIndicator(); // Hide loading indicator on error
-      console.error("Error fetching directions:", error);
-    });
-}
+    }
 
-// Start by getting recipient position
-getRecipientPosition();
+    function getRecipientPosition() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            recipientPosition = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            };
+            console.log("Recipient Position:", recipientPosition);
+
+            // Start tracking the sender's position after obtaining recipient's location
+            getSenderPosition();
+          },
+          (error) => {
+            console.error("Error obtaining recipient's location:", error);
+          }
+        );
+      } else {
+        console.error("Geolocation is not supported by this browser.");
+      }
+    }
+
+    function fetchDirections(sender, recipient) {
+      showLoadingIndicator(); // Show loading indicator with delay
+      const url = `https://router.project-osrm.org/route/v1/driving/${sender.lng},${sender.lat};${recipient.lng},${recipient.lat}?overview=false`;
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          console.log(data); // Log the response
+          hideLoadingIndicator(); // Hide loading indicator after fetching directions
+          if (data.routes && data.routes.length > 0) {
+            const route = data.routes[0];
+            const distance = (route.distance / 1000).toFixed(2); // Convert to kilometers
+            const steps = route.legs[0].steps;
+
+            // Display distance
+            document.getElementById("distance").innerText = `Distance: ${distance} km`;
+
+            // Display turn-by-turn directions
+            const directionsList = document.getElementById("directions");
+            directionsList.innerHTML = ""; // Clear previous directions
+            steps.forEach(step => {
+              const listItem = document.createElement("li");
+              listItem.innerText = step.maneuver.instruction;
+              directionsList.appendChild(listItem);
+            });
+          } else {
+            console.error("No routes found in response:", data);
+          }
+        })
+        .catch(error => {
+          hideLoadingIndicator(); // Hide loading indicator on error
+          console.error("Error fetching directions:", error);
+        });
+    }
+
+    // Start by getting recipient position
+    getRecipientPosition();
 
 
-function showLoadingIndicator() {
-  // Set a timeout to show the loading indicator after a delay
-  loadingTimeout = setTimeout(() => {
-    document.getElementById("loadingIndicator").style.display = "block";
-  }, 1000); // 500 milliseconds delay (adjust as needed)
-}
+    function showLoadingIndicator() {
+      // Set a timeout to show the loading indicator after a delay
+      loadingTimeout = setTimeout(() => {
+        document.getElementById("loadingIndicator").style.display = "block";
+      }, 1000); // 500 milliseconds delay (adjust as needed)
+    }
 
-function hideLoadingIndicator() {
-  // Clear the timeout if the loading is completed before the delay
-  clearTimeout(loadingTimeout);
-  document.getElementById("loadingIndicator").style.display = "none";
-}
-
-
+    function hideLoadingIndicator() {
+      // Clear the timeout if the loading is completed before the delay
+      clearTimeout(loadingTimeout);
+      document.getElementById("loadingIndicator").style.display = "none";
+    }
     // Trigger to get current position
     socket.on("locationUpdate", (data) => {
       const { latitude, longitude } = data;
@@ -389,9 +411,6 @@ function hideLoadingIndicator() {
           .bindPopup(`<b>${data.username}</b>`)
           .openPopup(); // Create marker if it doesn't exist
       }
-
-    
-
       // Add the new coordinate to the array
       coordinates.push([latitude, longitude]);
 
@@ -448,99 +467,99 @@ function hideLoadingIndicator() {
       { once: false }
     );
 
-   
-let senderPosition = null;    // Store sender's position globally
 
-function getSenderPosition() {
-  if (navigator.geolocation) {
-    // Continuously track sender's location with watchPosition
-    navigator.geolocation.watchPosition(
-      (position) => {
-        senderPosition = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        };
-        console.log("Updated Sender Position:", senderPosition);
+    let senderPosition = null;    // Store sender's position globally
 
-        // If recipient position is available, fetch directions
-        if (recipientPosition) {
-          fetchDirections(senderPosition, recipientPosition);
-        }
-      },
-      (error) => {
-        console.error("Error updating sender's location:", error);
-      }
-    );
-  } else {
-    console.error("Geolocation is not supported by this browser.");
-  }
-}
+    function getSenderPosition() {
+      if (navigator.geolocation) {
+        // Continuously track sender's location with watchPosition
+        navigator.geolocation.watchPosition(
+          (position) => {
+            senderPosition = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            };
+            console.log("Updated Sender Position:", senderPosition);
 
-function getRecipientPosition() {
-  if (navigator.geolocation) {
-    // Use getCurrentPosition to get recipient's location only once
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        recipientPosition = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        };
-        console.log("Recipient Position:", recipientPosition);
-
-        // Start watching sender's position after setting recipient position
-        getSenderPosition();
-      },
-      (error) => {
-        console.error("Error obtaining recipient's location:", error);
-      }
-    );
-  } else {
-    console.error("Geolocation is not supported by this browser.");
-  }
-}
-
-function fetchDirections(sender, recipient) {
-  showLoadingIndicator(); // Show loading indicator with delay
-  const url = `https://router.project-osrm.org/route/v1/driving/${sender.lng},${sender.lat};${recipient.lng},${recipient.lat}?overview=false`;
-
-  fetch(url)
-    .then(response => response.json())
-    .then(data => {
-      console.log(data); // Log the response
-      hideLoadingIndicator(); // Hide loading indicator after fetching directions
-      if (data.routes && data.routes.length > 0) {
-        const route = data.routes[0];
-        const distance = (route.distance / 1000).toFixed(2); // Convert to kilometers
-        const steps = route.legs[0].steps;
-
-        // Display distance
-        document.getElementById("distance").innerText = `Distance: ${distance} km`;
-
-        // Display turn-by-turn directions
-        const directionsList = document.getElementById("directions");
-        directionsList.innerHTML = ""; // Clear previous directions
-        steps.forEach(step => {
-          const listItem = document.createElement("li");
-          listItem.innerText = step.maneuver.instruction;
-          directionsList.appendChild(listItem);
-        });
+            // If recipient position is available, fetch directions
+            if (recipientPosition) {
+              fetchDirections(senderPosition, recipientPosition);
+            }
+          },
+          (error) => {
+            console.error("Error updating sender's location:", error);
+          }
+        );
       } else {
-        console.error("No routes found in response:", data);
+        console.error("Geolocation is not supported by this browser.");
       }
-    })
-    .catch(error => {
-      hideLoadingIndicator(); // Hide loading indicator on error
-      console.error("Error fetching directions:", error);
-    });
-}
+    }
 
-// Start by getting recipient position only once
-getRecipientPosition();
+    function getRecipientPosition() {
+      if (navigator.geolocation) {
+        // Use getCurrentPosition to get recipient's location only once
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            recipientPosition = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            };
+            console.log("Recipient Position:", recipientPosition);
+
+            // Start watching sender's position after setting recipient position
+            getSenderPosition();
+          },
+          (error) => {
+            console.error("Error obtaining recipient's location:", error);
+          }
+        );
+      } else {
+        console.error("Geolocation is not supported by this browser.");
+      }
+    }
+
+    function fetchDirections(sender, recipient) {
+      showLoadingIndicator(); // Show loading indicator with delay
+      const url = `https://router.project-osrm.org/route/v1/driving/${sender.lng},${sender.lat};${recipient.lng},${recipient.lat}?overview=false`;
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          console.log(data); // Log the response
+          hideLoadingIndicator(); // Hide loading indicator after fetching directions
+          if (data.routes && data.routes.length > 0) {
+            const route = data.routes[0];
+            const distance = (route.distance / 1000).toFixed(2); // Convert to kilometers
+            const steps = route.legs[0].steps;
+
+            // Display distance
+            document.getElementById("distance").innerText = `Distance: ${distance} km`;
+
+            // Display turn-by-turn directions
+            const directionsList = document.getElementById("directions");
+            directionsList.innerHTML = ""; // Clear previous directions
+            steps.forEach(step => {
+              const listItem = document.createElement("li");
+              listItem.innerText = step.maneuver.instruction;
+              directionsList.appendChild(listItem);
+            });
+          } else {
+            console.error("No routes found in response:", data);
+          }
+        })
+        .catch(error => {
+          hideLoadingIndicator(); // Hide loading indicator on error
+          console.error("Error fetching directions:", error);
+        });
+    }
+
+    // Start by getting recipient position only once
+    getRecipientPosition();
 
 
-// Start the process by getting the sender's position
+    // Start the process by getting the sender's position
 
-   
+
   </script>
 </body>
 
