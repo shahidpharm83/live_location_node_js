@@ -282,7 +282,57 @@
       }
     }
 
-    
+    // Function to set up and calculate the route
+    function calculateRoute() {
+      if (routingControl) {
+        map.removeControl(routingControl); // Remove existing route if any
+      }
+
+      // Proceed only if both start and end points are set
+      if (startPoint && endPoint) {
+        routingControl = L.Routing.control({
+          waypoints: [L.latLng(startPoint.lat, startPoint.lng), L.latLng(endPoint.lat, endPoint.lng)],
+          routeWhileDragging: true,
+          geocoder: L.Control.Geocoder.nominatim(),
+        })
+          .on("routesfound", function (e) {
+            const route = e.routes[0];
+            const routeInstructions = route.instructions;
+
+            // Clear and populate route instructions
+            document.getElementById("routeDetails").innerHTML = "<h3>Route Instructions:</h3>";
+            route.instructions.forEach((instruction, index) => {
+              const instructionText = document.createElement("p");
+              instructionText.innerText = `${index + 1}. ${instruction.text}`;
+              document.getElementById("routeDetails").appendChild(instructionText);
+            });
+          })
+          .addTo(map);
+      }
+    }
+
+    // Set up map click handler to capture start or end points
+    map.on('click', function (e) {
+      if (document.activeElement.id === 'startInput') {
+        startPoint = e.latlng;
+        document.getElementById('startInput').value = `${startPoint.lat}, ${startPoint.lng}`;
+      } else if (document.activeElement.id === 'endInput') {
+        endPoint = e.latlng;
+        document.getElementById('endInput').value = `${endPoint.lat}, ${endPoint.lng}`;
+      }
+
+      // Calculate the route if both points are defined
+      if (startPoint && endPoint) {
+        calculateRoute();
+      }
+    });
+
+    // Safely append input fields and route details without overwriting map
+    document.body.insertAdjacentHTML('beforeend', `
+  <input type="text" id="startInput" placeholder="Click to select start point" readonly>
+  <input type="text" id="endInput" placeholder="Click to select end point" readonly>
+  <div id="routeDetails" style="margin-top: 20px;"></div>
+`);
 
     // Trigger to get current position
     socket.on("locationUpdate", (data) => {
@@ -386,9 +436,77 @@
     );
 
 
-    
+    // Function to fetch route data from the server
+    const fetchRouteData = async () => {
+      try {
+        const response = await fetch('/api/getRoute');
+        const data2 = await response.json();
+        console.log('Route Data:', data2); // Log the entire response data
 
-   
+        // Process and display route details
+        displayRouteData(data2);
+
+
+        // Call this function with the start and end coordinates
+        // calculateRoute([data2.startLat, data2.startLng], [data2.endLat, data2.endLng]);
+      } catch (error) {
+        console.error('Error fetching route data:', error);
+      }
+    };
+
+    // Function to display route details in the UI
+    const displayRouteData = (data2) => {
+      const routeDetails = document.getElementById("routeDetails");
+      routeDetails.innerHTML = ""; // Clear previous data
+
+      // Display Route Summary
+      const routeInfo = document.createElement("div");
+      routeInfo.innerHTML = `
+    <h3>Route Summary</h3>
+    <p>Distance: ${data2.route.distance} meters</p>
+    <p>Duration: ${data2.route.duration} seconds</p>
+  `;
+      routeDetails.appendChild(routeInfo);
+
+      // Display Waypoints
+      const waypointInfo = document.createElement("div");
+      waypointInfo.innerHTML = `<h4>Waypoints:</h4>`;
+      data2.waypoints.forEach((waypoint, index) => {
+        const wpElement = document.createElement("p");
+        wpElement.innerHTML = `Waypoint ${index + 1}: [${waypoint.location[1]}, ${waypoint.location[0]}]`;
+        waypointInfo.appendChild(wpElement);
+      });
+      routeDetails.appendChild(waypointInfo);
+
+
+      console.log("Route displayed successfully");
+    }
+
+
+
+      // Example function to check for start and endpoint data from the backend
+  function checkRouteData() {
+
+ socket.on("requestRouteData", (data3) => {
+     const { startLat, startLng, endLat, endLng } = data3;
+      console.log("Start and end point received in frontend:", data3); 
+ });
+
+
+ 
+        // Check if start and endpoint data are available
+        if (data3.start && data3.end) {
+          // If data is available, show the button
+          document.getElementById("showRouteButton").style.display = "block";
+        } else {
+          // Hide the button if data is not available
+          document.getElementById("showRouteButton").style.display = "none";
+        }
+      
+  }
+
+  // Call checkRouteData when the page loads or as needed
+  window.onload = checkRouteData;
 
   </script>
   </script>
