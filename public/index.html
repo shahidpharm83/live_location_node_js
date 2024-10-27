@@ -18,27 +18,34 @@
       box-sizing: border-box;
     }
 
-    
+
     html {
       height: 100%;
       overflow: hidden;
       /* Prevent scrolling */
     }
-     body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            height: 100vh; /* Full height */
-            position: relative; /* Set position relative for absolute children */
-        }
 
-   #map {
-            height: 100%; /* Full height */
-            width: 100%; /* Full width */
-            position: absolute; /* Positioning */
-            top: 0;
-            left: 0;
-            z-index: 1; /* Below input group and route details */
-        }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      height: 100vh;
+      /* Full height */
+      position: relative;
+      /* Set position relative for absolute children */
+    }
+
+    #map {
+      height: 100%;
+      /* Full height */
+      width: 100%;
+      /* Full width */
+      position: absolute;
+      /* Positioning */
+      top: 0;
+      left: 0;
+      z-index: 1;
+      /* Below input group and route details */
+    }
 
     /* Google Maps Logo Styling with Transparent Background */
     .google-logo {
@@ -67,36 +74,57 @@
       border-color: red;
     }
 
-         #routeDetails {
-            border: 1px solid #ccc;
-            padding: 10px;
-            background-color: rgba(249, 249, 249, 0.8); /* Light background */
-            width: 90%; /* Width of the route details */
-            max-width: 400px; /* Maximum width */
-            text-align: center; /* Center text */
-            margin-bottom: 10px; /* Space from the button */
-            z-index: 10; /* Higher than the map */
-            position: fixed; /* Fixed positioning */
-            bottom: 80px; /* Distance from the bottom */
-            left: 50%;
-            transform: translateX(-50%); /* Center it horizontally */
-        }
-        button {
-            position: fixed; /* Make it fixed to the viewport */
-            bottom: 20px; /* Distance from the bottom */
-            right: 20px; /* Distance from the right */
-            padding: 10px 15px;
-            background-color: #007BFF; /* Blue color */
-            color: white; /* Text color */
-            border: none; /* No border */
-            border-radius: 5px; /* Rounded corners */
-            cursor: pointer; /* Pointer cursor */
-            z-index: 1000; /* Ensure it stays above other elements */
-        }
-        button:hover {
-            background-color: #0056b3; /* Darker blue on hover */
-        }
-        
+    #routeDetails {
+      border: 1px solid #ccc;
+      padding: 10px;
+      background-color: rgba(249, 249, 249, 0.8);
+      /* Light background */
+      width: 90%;
+      /* Width of the route details */
+      max-width: 400px;
+      /* Maximum width */
+      text-align: center;
+      /* Center text */
+      margin-bottom: 10px;
+      /* Space from the button */
+      z-index: 10;
+      /* Higher than the map */
+      position: fixed;
+      /* Fixed positioning */
+      bottom: 80px;
+      /* Distance from the bottom */
+      left: 50%;
+      transform: translateX(-50%);
+      /* Center it horizontally */
+    }
+
+    button {
+      position: fixed;
+      /* Make it fixed to the viewport */
+      bottom: 20px;
+      /* Distance from the bottom */
+      right: 20px;
+      /* Distance from the right */
+      padding: 10px 15px;
+      background-color: #007BFF;
+      /* Blue color */
+      color: white;
+      /* Text color */
+      border: none;
+      /* No border */
+      border-radius: 5px;
+      /* Rounded corners */
+      cursor: pointer;
+      /* Pointer cursor */
+      z-index: 1000;
+      /* Ensure it stays above other elements */
+    }
+
+    button:hover {
+      background-color: #0056b3;
+      /* Darker blue on hover */
+    }
+
     /* Optional fullscreen button */
   </style>
   <script src="./leaflet.js"></script>
@@ -110,15 +138,15 @@
 </head>
 
 <body>
- 
 
-   
 
-    <!-- Panel to display route data -->
-   <div id="routeDetails"></div>
 
-    <button id="showRouteButton" onclick="fetchRouteData()">Show Route</button>
- <div id="map"></div>
+
+  <!-- Panel to display route data -->
+  <div id="routeDetails"></div>
+
+  <button id="showRouteButton" onclick="fetchRouteData()">Show Route</button>
+  <div id="map"></div>
   <!-- Google Maps Logo Overlay with transparent background -->
   <div class="google-logo">
     <img src="google_maps_logo.png" alt="Google Maps Logo" width="100px" />
@@ -150,7 +178,7 @@
       <!-- You can use an icon here -->
     </button>
   </div>
- 
+
   <script>
     const socket = io();
     let userMarker; // To store the user's current position marker
@@ -160,6 +188,7 @@
     let initialZoom = 13; // Set your desired fixed zoom level
     // Initialize the map with the fixed zoom level
     let currentZoom = initialZoom; // Initialize currentZoom with the initial zoom level
+let startPoint, endPoint;
 
     const map = L.map("map").setView([0, 0], currentZoom); // Start with a fixed zoom level
 
@@ -256,17 +285,58 @@
       }
     }
 
-    // function calculateRoute(start, end) {
-    //   if (routingControl) {
-    //     map.removeControl(routingControl); // Remove existing route
-    //   }
+  // Function to set up and calculate the route
+function calculateRoute() {
+  if (routingControl) {
+    map.removeControl(routingControl); // Remove existing route if any
+  }
+  
+  // Proceed only if both start and end points are set
+  if (startPoint && endPoint) {
+    routingControl = L.Routing.control({
+      waypoints: [L.latLng(startPoint.lat, startPoint.lng), L.latLng(endPoint.lat, endPoint.lng)],
+      routeWhileDragging: true,
+      geocoder: L.Control.Geocoder.nominatim(),
+    })
+    .on("routesfound", function (e) {
+      const route = e.routes[0];
+      const routeInstructions = route.instructions;
 
-    //   routingControl = L.Routing.control({
-    //     waypoints: [L.latLng(start[0], start[1]), L.latLng(end[0], end[1])],
-    //     routeWhileDragging: true,
-    //     geocoder: L.Control.Geocoder.nominatim(),
-    //   }).addTo(map);
-    // }
+      // Clear and populate route instructions
+      document.getElementById("routeDetails").innerHTML = "<h3>Route Instructions:</h3>";
+      route.instructions.forEach((instruction, index) => {
+        const instructionText = document.createElement("p");
+        instructionText.innerText = `${index + 1}. ${instruction.text}`;
+        document.getElementById("routeDetails").appendChild(instructionText);
+      });
+    })
+    .addTo(map);
+  }
+}
+
+// Set up map click handler to capture start or end points
+map.on('click', function (e) {
+  if (document.activeElement.id === 'startInput') {
+    startPoint = e.latlng;
+    document.getElementById('startInput').value = `${startPoint.lat}, ${startPoint.lng}`;
+  } else if (document.activeElement.id === 'endInput') {
+    endPoint = e.latlng;
+    document.getElementById('endInput').value = `${endPoint.lat}, ${endPoint.lng}`;
+  }
+  
+  // Calculate the route if both points are defined
+  if (startPoint && endPoint) {
+    calculateRoute();
+  }
+});
+
+// Safely append input fields and route details without overwriting map
+document.body.insertAdjacentHTML('beforeend', `
+  <input type="text" id="startInput" placeholder="Click to select start point" readonly>
+  <input type="text" id="endInput" placeholder="Click to select end point" readonly>
+  <div id="routeDetails" style="margin-top: 20px;"></div>
+`);
+
     // Trigger to get current position
     socket.on("locationUpdate", (data) => {
       const { latitude, longitude } = data;
@@ -390,56 +460,60 @@
       { once: false }
     ); // Ensures fullscreen is only requested once
 
-   
 
 
 
-// Function to fetch route data from the server
-const fetchRouteData = async () => {
-    try {
+
+    // Function to fetch route data from the server
+    const fetchRouteData = async () => {
+      try {
         const response = await fetch('/api/getRoute');
         const data2 = await response.json();
         console.log('Route Data:', data2); // Log the entire response data
 
         // Process and display route details
         displayRouteData(data2);
-    } catch (error) {
+
+
+        // Call this function with the start and end coordinates
+// calculateRoute([data2.startLat, data2.startLng], [data2.endLat, data2.endLng]);
+      } catch (error) {
         console.error('Error fetching route data:', error);
-    }
-};
+      }
+    };
 
-// Function to display route details in the UI
-// Function to display route details in the UI
-// Function to display route data
-const displayRouteData = (data2) => {
-  const routeDetails = document.getElementById("routeDetails");
-  routeDetails.innerHTML = ""; // Clear previous data
+    // Function to display route details in the UI
+    // Function to display route details in the UI
+    // Function to display route data
+    const displayRouteData = (data2) => {
+      const routeDetails = document.getElementById("routeDetails");
+      routeDetails.innerHTML = ""; // Clear previous data
 
-  // Display Route Summary
-  const routeInfo = document.createElement("div");
-  routeInfo.innerHTML = `
+      // Display Route Summary
+      const routeInfo = document.createElement("div");
+      routeInfo.innerHTML = `
     <h3>Route Summary</h3>
     <p>Distance: ${data2.route.distance} meters</p>
     <p>Duration: ${data2.route.duration} seconds</p>
   `;
-  routeDetails.appendChild(routeInfo);
+      routeDetails.appendChild(routeInfo);
 
-  // Display Waypoints
-  const waypointInfo = document.createElement("div");
-  waypointInfo.innerHTML = `<h4>Waypoints:</h4>`;
-  data.waypoints.forEach((waypoint, index) => {
-    const wpElement = document.createElement("p");
-    wpElement.innerHTML = `Waypoint ${index + 1}: [${waypoint.location[1]}, ${waypoint.location[0]}]`;
-    waypointInfo.appendChild(wpElement);
-  });
-  routeDetails.appendChild(waypointInfo);
-
-
-  console.log("Route displayed successfully");
-}
+      // Display Waypoints
+      const waypointInfo = document.createElement("div");
+      waypointInfo.innerHTML = `<h4>Waypoints:</h4>`;
+      data2.waypoints.forEach((waypoint, index) => {
+        const wpElement = document.createElement("p");
+        wpElement.innerHTML = `Waypoint ${index + 1}: [${waypoint.location[1]}, ${waypoint.location[0]}]`;
+        waypointInfo.appendChild(wpElement);
+      });
+      routeDetails.appendChild(waypointInfo);
 
 
-     
+      console.log("Route displayed successfully");
+    }
+
+
+
   </script>
   </script>
 </body>
