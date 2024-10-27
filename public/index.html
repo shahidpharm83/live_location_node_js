@@ -18,7 +18,6 @@
       box-sizing: border-box;
     }
 
-
     html {
       height: 100%;
       overflow: hidden;
@@ -74,60 +73,11 @@
       border-color: red;
     }
 
-    #routeDetails {
-      border: 1px solid #ccc;
-      padding: 10px;
-      background-color: rgba(249, 249, 249, 0.8);
-      /* Light background */
-      width: 90%;
-      /* Width of the route details */
-      max-width: 400px;
-      /* Maximum width */
-      text-align: center;
-      /* Center text */
-      margin-bottom: 10px;
-      /* Space from the button */
-      z-index: 10;
-      /* Higher than the map */
-      position: fixed;
-      /* Fixed positioning */
-      bottom: 80px;
-      /* Distance from the bottom */
-      left: 50%;
-      transform: translateX(-50%);
-      /* Center it horizontally */
-    }
-
-    button {
-      position: fixed;
-      /* Make it fixed to the viewport */
-      bottom: 20px;
-      /* Distance from the bottom */
-      right: 20px;
-      /* Distance from the right */
-      padding: 10px 15px;
-      background-color: #007BFF;
-      /* Blue color */
-      color: white;
-      /* Text color */
-      border: none;
-      /* No border */
-      border-radius: 5px;
-      /* Rounded corners */
-      cursor: pointer;
-      /* Pointer cursor */
-      z-index: 1000;
-      /* Ensure it stays above other elements */
-    }
-
-    button:hover {
-      background-color: #0056b3;
-      /* Darker blue on hover */
-    }
+  
+    
 
     /* Optional fullscreen button */
   </style>
-  <script src="./leaflet.js"></script>
   <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
@@ -138,11 +88,7 @@
 </head>
 
 <body>
-
   <!-- Panel to display route data -->
-  <div id="routeDetails"></div>
-
-  <button id="showRouteButton" onclick="fetchRouteData()" style="display: none;">Show Route</button>
   <div id="map"></div>
   <!-- Google Maps Logo Overlay with transparent background -->
   <div class="google-logo">
@@ -171,10 +117,19 @@
           box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
           transition: background-color 0.3s;
         ">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="white">
+    <path d="M12 2C8.13 2 5 5.13 5 9c0 3.61 7 11 7 11s7-7.39 7-11c0-3.87-3.13-7-7-7zm0 5a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"/>
+  </svg>
+</button>
 
-      <!-- You can use an icon here -->
-    </button>
   </div>
+
+  <div id="panel">
+    <h2>Directions</h2>
+    <div id="distance"></div>
+    <ul id="directions"></ul>
+</div>
+
 
   <script>
     const socket = io();
@@ -185,7 +140,6 @@
     let initialZoom = 13; // Set your desired fixed zoom level
     // Initialize the map with the fixed zoom level
     let currentZoom = initialZoom; // Initialize currentZoom with the initial zoom level
-    let startPoint, endPoint;
 
     const map = L.map("map").setView([0, 0], currentZoom); // Start with a fixed zoom level
 
@@ -250,96 +204,70 @@
     // Create a marker variable to store the user's marker
     googleStreetLayer.addTo(map);
     L.control.layers(baseLayers).addTo(map);
-    // Create a marker
 
     // Function to get the current position
-    function getCurrentPosition() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
+   function getCurrentPosition() {
+  if (navigator.geolocation) {
+    // Show loading indicator
+    showLoadingIndicator();
 
-            // Set view to current position with fixed zoom
-            map.setView([lat, lng], currentZoom);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
 
-            // Add or update user marker
-            if (userMarker) {
-              userMarker.setLatLng([lat, lng]);
-            } else {
-              userMarker = L.marker([lat, lng])
-                .addTo(map)
-                .bindPopup("You are here!")
-                .openPopup();
-            }
-          },
-          (error) => {
-            console.error("Error obtaining location:", error);
-          }
-        );
-      } else {
-        console.error("Geolocation is not supported by this browser.");
+        // Set view to current position with fixed zoom
+        map.setView([lat, lng], currentZoom);
+
+        // Add or update user marker
+        if (userMarker) {
+          userMarker.setLatLng([lat, lng]);
+        } else {
+          userMarker = L.marker([lat, lng])
+            .addTo(map)
+            .bindPopup("You are here!")
+            .openPopup();
+        }
+
+        // Hide loading indicator
+        hideLoadingIndicator();
+      },
+      (error) => {
+        hideLoadingIndicator();
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            console.error("User denied the request for Geolocation.");
+            break;
+          case error.POSITION_UNAVAILABLE:
+            console.error("Location information is unavailable.");
+            break;
+          case error.TIMEOUT:
+            console.error("The request to get user location timed out.");
+            break;
+          case error.UNKNOWN_ERROR:
+            console.error("An unknown error occurred.");
+            break;
+        }
       }
-    }
+    );
+  } else {
+    console.error("Geolocation is not supported by this browser.");
+  }
+}
 
-    // Function to set up and calculate the route
-    function calculateRoute() {
-      if (routingControl) {
-        map.removeControl(routingControl); // Remove existing route if any
-      }
+// Dummy functions for loading indicator (implement these as needed)
+function showLoadingIndicator() {
+  // Show loading spinner or message
+}
 
-      // Proceed only if both start and end points are set
-      if (startPoint && endPoint) {
-        routingControl = L.Routing.control({
-          waypoints: [L.latLng(startPoint.lat, startPoint.lng), L.latLng(endPoint.lat, endPoint.lng)],
-          routeWhileDragging: true,
-          geocoder: L.Control.Geocoder.nominatim(),
-        })
-          .on("routesfound", function (e) {
-            const route = e.routes[0];
-            const routeInstructions = route.instructions;
-
-            // Clear and populate route instructions
-            document.getElementById("routeDetails").innerHTML = "<h3>Route Instructions:</h3>";
-            route.instructions.forEach((instruction, index) => {
-              const instructionText = document.createElement("p");
-              instructionText.innerText = `${index + 1}. ${instruction.text}`;
-              document.getElementById("routeDetails").appendChild(instructionText);
-            });
-          })
-          .addTo(map);
-      }
-    }
-
-    // Set up map click handler to capture start or end points
-    map.on('click', function (e) {
-      if (document.activeElement.id === 'startInput') {
-        startPoint = e.latlng;
-        document.getElementById('startInput').value = `${startPoint.lat}, ${startPoint.lng}`;
-      } else if (document.activeElement.id === 'endInput') {
-        endPoint = e.latlng;
-        document.getElementById('endInput').value = `${endPoint.lat}, ${endPoint.lng}`;
-      }
-
-      // Calculate the route if both points are defined
-      if (startPoint && endPoint) {
-        calculateRoute();
-      }
-    });
-
-    // Safely append input fields and route details without overwriting map
-    document.body.insertAdjacentHTML('beforeend', `
-  <input type="text" id="startInput" placeholder="Click to select start point" readonly>
-  <input type="text" id="endInput" placeholder="Click to select end point" readonly>
-  <div id="routeDetails" style="margin-top: 20px;"></div>
-`);
+function hideLoadingIndicator() {
+  // Hide loading spinner or message
+}
 
     // Trigger to get current position
     socket.on("locationUpdate", (data) => {
       const { latitude, longitude } = data;
       console.log("Location update received in frontend:", data); // Log the received data
-
-
       // Convert base64 image back to image source
       const imgSrc = `data:image/png;base64,${data.userimage}`;
 
@@ -362,23 +290,11 @@
           .bindPopup(`<b>${data.username}</b>`)
           .openPopup(); // Create marker if it doesn't exist
       }
-      // } else {
-      //     console.error('Invalid coordinates received');
-      // }
 
-      // Optional: Draw a route from current position to the sender's location
-      const currentLatLng = map.getCenter();
-      L.Routing.control({
-        waypoints: [
-          L.latLng(currentLatLng.lat, currentLatLng.lng),
-          L.latLng(data.latitude, data.longitude),
-        ],
-        routeWhileDragging: true,
-      }).addTo(map);
+    
 
       // Add the new coordinate to the array
       coordinates.push([latitude, longitude]);
-
 
       // Update the red line and apply the bounds only if redLine is defined
       if (redLine) {
@@ -398,8 +314,6 @@
 
       // Center the map on the last coordinate without changing zoom level
       map.setView([latitude, longitude], currentZoom);
-
-
     });
 
     // Fullscreen logic
@@ -435,85 +349,73 @@
       { once: false }
     );
 
+   
+let senderPosition = { lat: 40.730610, lng: -73.935242 }; // Example sender position (replace with actual)
 
-    // Function to fetch route data from the server
-    const fetchRouteData = async () => {
-      try {
-        const response = await fetch('/api/getRoute');
-        const data2 = await response.json();
-        console.log('Route Data:', data2); // Log the entire response data
+// Function to get recipient's current position and fetch directions
+function getRecipientPositionAndDirections() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const recipientPosition = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
 
-        // Process and display route details
-        displayRouteData(data2);
-
-
-        // Call this function with the start and end coordinates
-        // calculateRoute([data2.startLat, data2.startLng], [data2.endLat, data2.endLng]);
-      } catch (error) {
-        console.error('Error fetching route data:', error);
-      }
-    };
-
-    // Function to display route details in the UI
-    const displayRouteData = (data2) => {
-      const routeDetails = document.getElementById("routeDetails");
-      routeDetails.innerHTML = ""; // Clear previous data
-
-      // Display Route Summary
-      const routeInfo = document.createElement("div");
-      routeInfo.innerHTML = `
-    <h3>Route Summary</h3>
-    <p>Distance: ${data2.route.distance} meters</p>
-    <p>Duration: ${data2.route.duration} seconds</p>
-  `;
-      routeDetails.appendChild(routeInfo);
-
-      // Display Waypoints
-      const waypointInfo = document.createElement("div");
-      waypointInfo.innerHTML = `<h4>Waypoints:</h4>`;
-      data2.waypoints.forEach((waypoint, index) => {
-        const wpElement = document.createElement("p");
-        wpElement.innerHTML = `Waypoint ${index + 1}: [${waypoint.location[1]}, ${waypoint.location[0]}]`;
-        waypointInfo.appendChild(wpElement);
-      });
-      routeDetails.appendChild(waypointInfo);
-
-
-      console.log("Route displayed successfully");
-    }
-
-
-
-      // Example function to check for start and endpoint data from the backend
-  function checkRouteData() {
-
- socket.on("requestRouteData", (data3) => {
-     const { startLat, startLng, endLat, endLng } = data3;
-      console.log("Start and end received in frontend:", data3); 
- });
-
-
-    fetch('api/getStartEndPoint') // Replace with your actual backend API endpoint
-      .then(response => response.json())
-      .then(data3 => {
-        // Check if start and endpoint data are available
-        if (data3.start && data3.end) {
-          // If data is available, show the button
-          document.getElementById("showRouteButton").style.display = "block";
+        // Update the map view and marker
+        map.setView([recipientPosition.lat, recipientPosition.lng], currentZoom);
+        if (userMarker) {
+          userMarker.setLatLng([recipientPosition.lat, recipientPosition.lng]);
         } else {
-          // Hide the button if data is not available
-          document.getElementById("showRouteButton").style.display = "none";
+          userMarker = L.marker([recipientPosition.lat, recipientPosition.lng])
+            .addTo(map)
+            .bindPopup("You are here!")
+            .openPopup();
         }
-      })
-      .catch(error => {
-        console.error('Error fetching route data:', error);
-      });
+
+        // Fetch directions
+        fetchDirections(senderPosition, recipientPosition);
+      },
+      (error) => {
+        console.error("Error obtaining location:", error);
+      }
+    );
+  } else {
+    console.error("Geolocation is not supported by this browser.");
   }
+}
 
-  // Call checkRouteData when the page loads or as needed
-  window.onload = checkRouteData;
+// Function to fetch directions using OSRM API
+function fetchDirections(sender, recipient) {
+  const url = `https://router.project-osrm.org/route/v1/driving/${sender.lng},${sender.lat};${recipient.lng},${recipient.lat}?overview=false`;
 
-  </script>
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      const route = data.routes[0];
+      const distance = (route.distance / 1000).toFixed(2); // Convert to kilometers
+      const steps = route.legs[0].steps;
+
+      // Display distance
+      document.getElementById("distance").innerText = `Distance: ${distance} km`;
+
+      // Display turn-by-turn directions
+      const directionsList = document.getElementById("directions");
+      directionsList.innerHTML = ""; // Clear previous directions
+      steps.forEach(step => {
+        const listItem = document.createElement("li");
+        listItem.innerText = stepmaneuver.instruction; // Use `step.maneuver.instruction`
+        directionsList.appendChild(listItem);
+      });
+    })
+    .catch(error => {
+      console.error("Error fetching directions:", error);
+    });
+}
+
+// Call this function to start the process
+getRecipientPositionAndDirections();
+   
   </script>
 </body>
 
