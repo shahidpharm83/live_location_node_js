@@ -353,6 +353,8 @@
         document.getElementById("distance").innerText = `Distance: ${distance} km`;
 
         if (steps && steps.length > 0) {
+
+          alert('got data ');
           // Display turn-by-turn directions
           const directionsList = document.getElementById("directions");
           directionsList.innerHTML = ""; // Clear previous directions
