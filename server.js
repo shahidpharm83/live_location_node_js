@@ -9,7 +9,6 @@ const axios = require("axios");
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
-// app.use(cors({ origin: 'https://live-location-node-js.onrender.com/' }));
 
 app.use(
   cors({
@@ -20,61 +19,8 @@ app.use(
 );
 
 // Serve static files (HTML, CSS, JS) from the "public" folder
-// app.use(express.static('public'));
 app.use(express.static(path.join(__dirname, "public")));
 
-// io.on('connection', (socket) => {
-//     console.log('A user connected:', socket.id);
-
-//     // Listen for location updates from the Flutter client
-//     socket.on('locationUpdate', (data) => {
-//        console.log('Location update received from Flutter:', data);
-
-//          // Decode base64 image
-//     // const imageBuffer = Buffer.from(data.username, 'base64');
-//     // const imagePath = path.join(__dirname, 'uploads', `${data.userimage}_image.png`);
-
-//     // // Save the image on the server
-//     // fs.writeFile(imagePath, imageBuffer, (err) => {
-//     //   if (err) throw err;
-//     //   console.log('Image saved!');
-//     //     // Broadcast the location update to all connected clients
-//     //     io.emit('locationUpdate', data);
-//     //      // Log after emitting
-//     //         console.log('Location update emitted successfully');
-//     // });
-//       io.emit('locationUpdate', data);
-//          // Log after emitting
-//            console.log('Location update emitted successfully');
-// });
-// });
-// io.on('connection', (socket) => {
-//     console.log('A user connected:', socket.id);
-
-//   socket.on('locationUpdate', (data) => {
-//     const { userName, userImage, locationData } = data;
-// console.log('Location update received from Flutter:', data);
-
-//     // Decode base64 image
-//     const imageBuffer = Buffer.from(userName, 'base64');
-//     const imagePath = path.join(__dirname, 'uploads', `${userName}_image.png`);
-
-//     // Save the image on the server
-//     fs.writeFile(imagePath, imageBuffer, (err) => {
-//       if (err) throw err;
-//       console.log('Image saved!');
-
-//       // Emit the data back to all clients to update the marker on the map
-//       io.emit('locationUpdate', {
-//         userImage,
-//         imagePath,
-//         locationData,
-//       });
-//             console.log('User data emitted successfully');
-
-//     });
-//   });
-// });
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
 
@@ -89,11 +35,9 @@ io.on("connection", (socket) => {
   socket.on("requestRouteData", async (data1) => {
     const { startLat, startLng, endLat, endLng } = data1; // Extract start and end points
     // Check for undefined values
-
-    console.log(
-      `Route data requested from ${startLat}, ${startLng} to ${endLat}, ${endLng} by:`,
-      socket.id
-    );
+    io.emit("requestRouteData", data1);
+    console.log("Start and end point emitted to front end"); // Debug log
+    
 
     // Assuming you are using Express.js
     app.get("/api/getRoute", async (req, res) => {

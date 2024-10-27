@@ -139,13 +139,10 @@
 
 <body>
 
-
-
-
   <!-- Panel to display route data -->
   <div id="routeDetails"></div>
 
-  <button id="showRouteButton" onclick="fetchRouteData()">Show Route</button>
+  <button id="showRouteButton" onclick="fetchRouteData()" style="display: none;">Show Route</button>
   <div id="map"></div>
   <!-- Google Maps Logo Overlay with transparent background -->
   <div class="google-logo">
@@ -188,7 +185,7 @@
     let initialZoom = 13; // Set your desired fixed zoom level
     // Initialize the map with the fixed zoom level
     let currentZoom = initialZoom; // Initialize currentZoom with the initial zoom level
-let startPoint, endPoint;
+    let startPoint, endPoint;
 
     const map = L.map("map").setView([0, 0], currentZoom); // Start with a fixed zoom level
 
@@ -285,53 +282,53 @@ let startPoint, endPoint;
       }
     }
 
-  // Function to set up and calculate the route
-function calculateRoute() {
-  if (routingControl) {
-    map.removeControl(routingControl); // Remove existing route if any
-  }
-  
-  // Proceed only if both start and end points are set
-  if (startPoint && endPoint) {
-    routingControl = L.Routing.control({
-      waypoints: [L.latLng(startPoint.lat, startPoint.lng), L.latLng(endPoint.lat, endPoint.lng)],
-      routeWhileDragging: true,
-      geocoder: L.Control.Geocoder.nominatim(),
-    })
-    .on("routesfound", function (e) {
-      const route = e.routes[0];
-      const routeInstructions = route.instructions;
+    // Function to set up and calculate the route
+    function calculateRoute() {
+      if (routingControl) {
+        map.removeControl(routingControl); // Remove existing route if any
+      }
 
-      // Clear and populate route instructions
-      document.getElementById("routeDetails").innerHTML = "<h3>Route Instructions:</h3>";
-      route.instructions.forEach((instruction, index) => {
-        const instructionText = document.createElement("p");
-        instructionText.innerText = `${index + 1}. ${instruction.text}`;
-        document.getElementById("routeDetails").appendChild(instructionText);
-      });
-    })
-    .addTo(map);
-  }
-}
+      // Proceed only if both start and end points are set
+      if (startPoint && endPoint) {
+        routingControl = L.Routing.control({
+          waypoints: [L.latLng(startPoint.lat, startPoint.lng), L.latLng(endPoint.lat, endPoint.lng)],
+          routeWhileDragging: true,
+          geocoder: L.Control.Geocoder.nominatim(),
+        })
+          .on("routesfound", function (e) {
+            const route = e.routes[0];
+            const routeInstructions = route.instructions;
 
-// Set up map click handler to capture start or end points
-map.on('click', function (e) {
-  if (document.activeElement.id === 'startInput') {
-    startPoint = e.latlng;
-    document.getElementById('startInput').value = `${startPoint.lat}, ${startPoint.lng}`;
-  } else if (document.activeElement.id === 'endInput') {
-    endPoint = e.latlng;
-    document.getElementById('endInput').value = `${endPoint.lat}, ${endPoint.lng}`;
-  }
-  
-  // Calculate the route if both points are defined
-  if (startPoint && endPoint) {
-    calculateRoute();
-  }
-});
+            // Clear and populate route instructions
+            document.getElementById("routeDetails").innerHTML = "<h3>Route Instructions:</h3>";
+            route.instructions.forEach((instruction, index) => {
+              const instructionText = document.createElement("p");
+              instructionText.innerText = `${index + 1}. ${instruction.text}`;
+              document.getElementById("routeDetails").appendChild(instructionText);
+            });
+          })
+          .addTo(map);
+      }
+    }
 
-// Safely append input fields and route details without overwriting map
-document.body.insertAdjacentHTML('beforeend', `
+    // Set up map click handler to capture start or end points
+    map.on('click', function (e) {
+      if (document.activeElement.id === 'startInput') {
+        startPoint = e.latlng;
+        document.getElementById('startInput').value = `${startPoint.lat}, ${startPoint.lng}`;
+      } else if (document.activeElement.id === 'endInput') {
+        endPoint = e.latlng;
+        document.getElementById('endInput').value = `${endPoint.lat}, ${endPoint.lng}`;
+      }
+
+      // Calculate the route if both points are defined
+      if (startPoint && endPoint) {
+        calculateRoute();
+      }
+    });
+
+    // Safely append input fields and route details without overwriting map
+    document.body.insertAdjacentHTML('beforeend', `
   <input type="text" id="startInput" placeholder="Click to select start point" readonly>
   <input type="text" id="endInput" placeholder="Click to select end point" readonly>
   <div id="routeDetails" style="margin-top: 20px;"></div>
@@ -341,10 +338,7 @@ document.body.insertAdjacentHTML('beforeend', `
     socket.on("locationUpdate", (data) => {
       const { latitude, longitude } = data;
       console.log("Location update received in frontend:", data); // Log the received data
-      // if (lat && lng) {
-      // Log before updating
-      //console.log('Updating marker and centering map...');
-      // console.log(data.latitude);
+
 
       // Convert base64 image back to image source
       const imgSrc = `data:image/png;base64,${data.userimage}`;
@@ -371,34 +365,20 @@ document.body.insertAdjacentHTML('beforeend', `
       // } else {
       //     console.error('Invalid coordinates received');
       // }
-      //  Function to get current GPS position
 
       // Optional: Draw a route from current position to the sender's location
-      // const currentLatLng = map.getCenter();
-      // L.Routing.control({
-      //   waypoints: [
-      //     L.latLng(currentLatLng.lat, currentLatLng.lng),
-      //     L.latLng(data.latitude, data.longitude),
-      //   ],
-      //   routeWhileDragging: true,
-      // }).addTo(map);
-      // Clear any existing lines (optional)
-      // Add the new coordinate to the array
-      // Add the new coordinate to the array
+      const currentLatLng = map.getCenter();
+      L.Routing.control({
+        waypoints: [
+          L.latLng(currentLatLng.lat, currentLatLng.lng),
+          L.latLng(data.latitude, data.longitude),
+        ],
+        routeWhileDragging: true,
+      }).addTo(map);
+
       // Add the new coordinate to the array
       coordinates.push([latitude, longitude]);
 
-      // If redLine doesn't exist yet, create it
-      // if (!redLine) {
-      //   redLine = L.polyline(coordinates, {
-      //     color: "red",
-      //     weight: 5,
-      //     opacity: 0.7,
-      //   }).addTo(map);
-      // } else {
-      //   // Otherwise, update the existing polyline by adding new coordinates
-      //   redLine.addLatLng([latitude, longitude]);
-      // }
 
       // Update the red line and apply the bounds only if redLine is defined
       if (redLine) {
@@ -419,12 +399,7 @@ document.body.insertAdjacentHTML('beforeend', `
       // Center the map on the last coordinate without changing zoom level
       map.setView([latitude, longitude], currentZoom);
 
-      // Set the view to the new location without changing the zoom level
-      // map.setView([latitude, longitude], map.getZoom());
-      // Update the route if the user marker is available
-      // if (userMarker) {
-      //     calculateRoute([userMarker.getLatLng().lat, userMarker.getLatLng().lng], [latitude, longitude]);
-      // }
+
     });
 
     // Fullscreen logic
@@ -458,10 +433,7 @@ document.body.insertAdjacentHTML('beforeend', `
         requestFullscreen();
       },
       { once: false }
-    ); // Ensures fullscreen is only requested once
-
-
-
+    );
 
 
     // Function to fetch route data from the server
@@ -476,15 +448,13 @@ document.body.insertAdjacentHTML('beforeend', `
 
 
         // Call this function with the start and end coordinates
-// calculateRoute([data2.startLat, data2.startLng], [data2.endLat, data2.endLng]);
+        // calculateRoute([data2.startLat, data2.startLng], [data2.endLat, data2.endLng]);
       } catch (error) {
         console.error('Error fetching route data:', error);
       }
     };
 
     // Function to display route details in the UI
-    // Function to display route details in the UI
-    // Function to display route data
     const displayRouteData = (data2) => {
       const routeDetails = document.getElementById("routeDetails");
       routeDetails.innerHTML = ""; // Clear previous data
@@ -512,7 +482,27 @@ document.body.insertAdjacentHTML('beforeend', `
       console.log("Route displayed successfully");
     }
 
+    // Example function to check for start and endpoint data from the backend
+    function checkRouteData() {
 
+      socket.on("requestRouteData", (data3) => {
+        const { startLat, startLng, endLat, endLng } = data3;
+        console.log("Start and end point received in frontend:", data3);
+
+        // Check if start and endpoint data are available
+        if (data3.start && data3.end) {
+          // If data is available, show the button
+          document.getElementById("showRouteButton").style.display = "block";
+        } else {
+          // Hide the button if data is not available
+          document.getElementById("showRouteButton").style.display = "none";
+        }
+      });
+
+    }
+
+    // Call checkRouteData when the page loads or as needed
+    window.onload = checkRouteData;
 
   </script>
   </script>
