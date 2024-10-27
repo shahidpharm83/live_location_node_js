@@ -342,7 +342,7 @@
       fetch(url)
         .then(response => response.json())
         .then(data => {
-          console.log(data); // Log the response
+          alert(data); // Log the response
           hideLoadingIndicator(); // Hide loading indicator after fetching directions
           if (data.routes && data.routes.length > 0) {
             const route = data.routes[0];
