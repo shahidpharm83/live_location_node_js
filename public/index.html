@@ -337,7 +337,7 @@
 
     function fetchDirections(sender, recipient) {
       showLoadingIndicator(); // Show loading indicator with delay
-      const url = `https://router.project-osrm.org/route/v1/driving/${sender.lng},${sender.lat};${recipient.lng},${recipient.lat}?overview=true`;
+      const url = `https://router.project-osrm.org/route/v1/driving/${sender.lng},${sender.lat};${recipient.lng},${recipient.lat}?overview=full&steps=true`;
 
       fetch(url)
         .then(response => response.json())
