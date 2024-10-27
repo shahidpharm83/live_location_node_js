@@ -425,7 +425,7 @@ function getSenderPosition() {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
         };
-        
+        console.log('sender position:', senderPosition);
         // Call the function to get the recipient's position after getting sender's position
         getRecipientPositionAndDirections();
       },
@@ -460,7 +460,6 @@ function getRecipientPositionAndDirections() {
         }
 
 
-        console.log("Sender Position:", senderPosition);
 console.log("Recipient Position:", recipientPosition);
         // Fetch directions from sender to recipient
         fetchDirections(senderPosition, recipientPosition);
