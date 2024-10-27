@@ -12,7 +12,7 @@ const io = new Server(server);
 
 app.use(
   cors({
-    origin: "*", // or '*' for all origins
+    origin: "https://live-location-node-js-1.onrender.com/", // or '*' for all origins
     methods: ["GET", "POST"],
     credentials: true,
   })
@@ -25,11 +25,11 @@ io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
 
   // Listen for location updates from the Flutter client
-  // socket.on("locationUpdate", (data) => {
-  //   // console.log('Location update received from Flutter:', data); // Debug log
-  //   io.emit("locationUpdate", data);
-  //   console.log("Location update emitted to all clients"); // Debug log
-  // });
+  socket.on("locationUpdate", (data) => {
+    // console.log('Location update received from Flutter:', data); // Debug log
+    io.emit("locationUpdate", data);
+    console.log("Location update emitted to all clients"); // Debug log
+  });
 
   // Listen for a request for route data
   socket.on("requestRouteData", async (data1) => {
