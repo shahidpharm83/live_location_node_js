@@ -98,6 +98,33 @@
 }
 
 
+#panel {
+    position: fixed;          /* Fixed position */
+    bottom: 20px;            /* Space from the bottom */
+    left: 50%;               /* Center horizontally */
+    transform: translateX(-50%); /* Adjust to truly center */
+    background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
+    border: 1px solid #ccc;  /* Optional border */
+    border-radius: 8px;      /* Rounded corners */
+    padding: 15px;           /* Padding around content */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Optional shadow */
+    z-index: 1000;           /* Ensure it appears above other content */
+}
+
+#panel h2 {
+    margin: 0;               /* Remove default margin */
+    font-size: 18px;         /* Set font size */
+}
+
+#directions {
+    list-style-type: none;   /* Remove bullet points */
+    padding: 0;              /* Remove default padding */
+}
+
+#directions li {
+    margin: 5px 0;          /* Spacing between list items */
+}
+
     /* Optional fullscreen button */
   </style>
   <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
@@ -288,7 +315,7 @@ function showLoadingIndicator() {
   // Set a timeout to show the loading indicator after a delay
   loadingTimeout = setTimeout(() => {
     document.getElementById("loadingIndicator").style.display = "block";
-  }, 500); // 500 milliseconds delay (adjust as needed)
+  }, 1000); // 500 milliseconds delay (adjust as needed)
 }
 
 function hideLoadingIndicator() {
