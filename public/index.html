@@ -11,6 +11,12 @@
       border-radius: 50%;
       object-fit: cover;
     }
+    /* Style for the iframe */
+    #mapFrame {
+      width: 100%;
+      height: 600px; /* Adjust height as needed */
+      border: none; /* Remove default border */
+    }
   </style>
 </head>
 <body>
@@ -20,6 +26,8 @@
     <img id="senderImage" class="profile-image" src="https://example.com/default-profile.jpg" alt="Sender Image">
     <p id="coordinatesDisplay"></p> <!-- Display coordinates -->
   </div>
+
+  <iframe id="mapFrame" src="" allowfullscreen></iframe>
 
   <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
   <script>
@@ -31,10 +39,10 @@
       console.log('Received location:', data);
 
       // Construct the Google Maps link with the latest coordinates
-      const mapsLink = `https://www.google.com/maps?q=${data.latitude},${data.longitude}`;
+      const mapsLink = `https://www.google.com/maps/embed/v1/view?key=YOUR_GOOGLE_MAPS_API_KEY&center=${data.latitude},${data.longitude}&zoom=15`; // Replace with a valid API key
 
-      // Automatically redirect to the Google Maps link
-      window.location.href = mapsLink; // Redirect to the updated URL
+      // Update the iframe's src attribute to show the new location
+      document.getElementById('mapFrame').src = mapsLink;
 
       // Optional: Update sender's image if available
       if (data.imageUrl) {
