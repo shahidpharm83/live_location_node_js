@@ -11,7 +11,7 @@
   <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
   <script>
     // Connect to the Node.js server
-    const socket = io('https://live-location-node-js-1.onrender.com/');
+    const socket = io();
 
     socket.on('locationUpdate', (data) => {
       console.log('Received location:', data);
