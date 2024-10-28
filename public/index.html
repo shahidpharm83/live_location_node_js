@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <title>Live Location Tracker</title>
   <style>
-    /* Style for circular image */
-     html, body {
+    /* Ensure full height and remove default margin and padding */
+    html, body {
       margin: 0;
       padding: 0;
-      height: 100%; /* Ensure full height */
-      overflow: hidden; /* Prevent scrolling */
+      height: 100%;
+      overflow: hidden;
     }
     /* Style for iframe */
     #mapFrame {
@@ -20,20 +20,18 @@
   </style>
 </head>
 <body>
-  
-  
-
   <!-- Embedded Google Map that updates with location changes -->
   <iframe id="mapFrame" src="" allowfullscreen></iframe>
 
   <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
   <script>
     // Connect to the Node.js server
-    const socket = io();
+    const socket = io(); // Ensure this matches your server setup
 
-    // Variables to store the latest coordinates
+    // Variables to store the latest coordinates and map link
     let currentLatitude = 0; // Default latitude
-    let currentLongitude =0; // Default longitude
+    let currentLongitude = 0; // Default longitude
+    let mapsLink = ""; // Initialize mapsLink
 
     // Listen for location updates from the server
     socket.on('locationUpdate', (data) => {
@@ -44,18 +42,22 @@
       currentLongitude = data.longitude;
 
       // Update Google Maps link
-      const mapsLink = `https://www.google.com/maps?q=${currentLatitude},${currentLongitude}`;
+      mapsLink = `https://www.google.com/maps?q=${currentLatitude},${currentLongitude}`;
 
-      return mapsLink;
+      // Refresh the map frame immediately upon receiving new location
+      refreshMapFrame();
     });
 
     // Function to refresh the iframe with the latest coordinates
     function refreshMapFrame() {
-      document.getElementById('mapFrame').src = mapsLink;
+      if (mapsLink) {
+        document.getElementById('mapFrame').src = mapsLink;
+      }
     }
 
-    // Set an interval to refresh the iframe every 5 seconds (5000 ms)
-    setInterval(refreshMapFrame, 5000);
+    // Optionally set an interval to refresh the iframe every 5 seconds (5000 ms)
+    // If you only want to refresh on location updates, you can remove this part.
+    // setInterval(refreshMapFrame, 5000);
   </script>
 </body>
 </html>
