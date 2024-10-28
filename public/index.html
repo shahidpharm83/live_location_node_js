@@ -35,22 +35,37 @@
     // Connect to the Node.js server
     const socket = io();
 
+    // Variables to store the latest coordinates
+    let currentLatitude = 0; // Default latitude
+    let currentLongitude = 0; // Default longitude
+
+    // Listen for location updates from the server
     socket.on('locationUpdate', (data) => {
       console.log('Received location:', data);
 
-      // Update Google Maps link with the latest coordinates
-      const mapsLink = `https://www.google.com/maps?q=${data.latitude},${data.longitude}`;
+      // Update the latest coordinates
+      currentLatitude = data.latitude;
+      currentLongitude = data.longitude;
+
+      // Update Google Maps link
+      const mapsLink = `https://www.google.com/maps?q=${currentLatitude},${currentLongitude}`;
       document.getElementById('mapsLink').href = mapsLink;
       document.getElementById('mapsLink').innerText = `Open in Google Maps`;
-
-      // Update the iframe src to refresh the Google Maps view
-      document.getElementById('mapFrame').src = `https://www.google.com/maps?q=${data.latitude},${data.longitude}&output=embed`;
 
       // Optional: Update sender's image if available
       if (data.imageUrl) {
         document.getElementById('senderImage').src = data.imageUrl;
       }
     });
+
+    // Function to refresh the iframe with the latest coordinates
+    function refreshMapFrame() {
+      const mapSrc = `https://www.google.com/maps?q=${currentLatitude},${currentLongitude}&output=embed`;
+      document.getElementById('mapFrame').src = mapSrc;
+    }
+
+    // Set an interval to refresh the iframe every 5 seconds (5000 ms)
+    setInterval(refreshMapFrame, 1000);
   </script>
 </body>
 </html>
