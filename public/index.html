@@ -18,7 +18,7 @@
   
   <div id="locationContainer">
     <img id="senderImage" class="profile-image" src="https://example.com/default-profile.jpg" alt="Sender Image">
-    <a id="mapsLink" href="" target="_blank">Open in Google Maps</a>
+    <p id="coordinatesDisplay"></p> <!-- Display coordinates -->
   </div>
 
   <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
@@ -32,13 +32,17 @@
 
       // Construct the Google Maps link with the latest coordinates
       const mapsLink = `https://www.google.com/maps?q=${data.latitude},${data.longitude}`;
-      document.getElementById('mapsLink').href = mapsLink; // Update the link
-      document.getElementById('mapsLink').innerText = `Open in Google Maps (${data.latitude}, ${data.longitude})`; // Optional: Update link text with coordinates
+
+      // Automatically redirect to the Google Maps link
+      window.location.href = mapsLink; // Redirect to the updated URL
 
       // Optional: Update sender's image if available
       if (data.imageUrl) {
         document.getElementById('senderImage').src = data.imageUrl;
       }
+
+      // Optional: Display coordinates
+      document.getElementById('coordinatesDisplay').innerText = `Current Location: ${data.latitude}, ${data.longitude}`;
     });
   </script>
 </body>
