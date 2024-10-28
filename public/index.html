@@ -45,15 +45,13 @@
 
       // Update Google Maps link
       const mapsLink = `https://www.google.com/maps?q=${currentLatitude},${currentLongitude}`;
-      document.getElementById('mapsLink').href = mapsLink;
 
       
     });
 
     // Function to refresh the iframe with the latest coordinates
     function refreshMapFrame() {
-      const mapSrc = `https://www.google.com/maps?q=${currentLatitude},${currentLongitude}&output=embed`;
-      document.getElementById('mapFrame').src = mapSrc;
+      document.getElementById('mapFrame').src = mapsLink;
     }
 
     // Set an interval to refresh the iframe every 5 seconds (5000 ms)
