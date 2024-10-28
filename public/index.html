@@ -11,18 +11,24 @@
       border-radius: 50%;
       object-fit: cover;
     }
+    /* Style for iframe */
+    #mapFrame {
+      width: 100%;
+      height: 450px;
+      border: none;
+    }
   </style>
 </head>
 <body>
   <h1>Live Location Tracker</h1>
   
-  <!-- Container for the image and link -->
   <div id="locationContainer">
-    <!-- Image of the sender -->
     <img id="senderImage" class="profile-image" src="https://example.com/default-profile.jpg" alt="Sender Image">
-    <!-- Link to Google Maps -->
     <a id="mapsLink" href="" target="_blank">Open in Google Maps</a>
   </div>
+
+  <!-- Embedded Google Map that updates with location changes -->
+  <iframe id="mapFrame" src="" allowfullscreen></iframe>
 
   <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
   <script>
@@ -36,6 +42,9 @@
       const mapsLink = `https://www.google.com/maps?q=${data.latitude},${data.longitude}`;
       document.getElementById('mapsLink').href = mapsLink;
       document.getElementById('mapsLink').innerText = `Open in Google Maps`;
+
+      // Update the iframe src to refresh the Google Maps view
+      document.getElementById('mapFrame').src = `https://www.google.com/maps?q=${data.latitude},${data.longitude}&output=embed`;
 
       // Optional: Update sender's image if available
       if (data.imageUrl) {
