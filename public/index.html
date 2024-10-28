@@ -5,26 +5,20 @@
   <title>Live Location Tracker</title>
   <style>
     /* Style for circular image */
-    .profile-image {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
+    
     /* Style for iframe */
     #mapFrame {
       width: 100%;
-      height: 450px;
+      height: 100%;
       border: none;
     }
   </style>
 </head>
 <body>
-  <h1>Live Location Tracker</h1>
   
   <div id="locationContainer">
     <img id="senderImage" class="profile-image" src="https://example.com/default-profile.jpg" alt="Sender Image">
-    <a id="mapsLink" href="" target="_blank">Open in Google Maps</a>
+    <a id="mapsLink" href="" target="_blank"></a>
   </div>
 
   <!-- Embedded Google Map that updates with location changes -->
@@ -50,12 +44,8 @@
       // Update Google Maps link
       const mapsLink = `https://www.google.com/maps?q=${currentLatitude},${currentLongitude}`;
       document.getElementById('mapsLink').href = mapsLink;
-      document.getElementById('mapsLink').innerText = `Open in Google Maps`;
 
-      // Optional: Update sender's image if available
-      if (data.imageUrl) {
-        document.getElementById('senderImage').src = data.imageUrl;
-      }
+      
     });
 
     // Function to refresh the iframe with the latest coordinates
