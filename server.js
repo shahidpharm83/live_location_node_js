@@ -11,7 +11,7 @@ const server = http.createServer(app);
 
 
 const io = require("socket.io")(server, {
-  transports: ["websocket", "polling"],
+  transports: ["websocket"],
   pingInterval: 10000, // Send ping every 10 seconds
   pingTimeout: 5000, // Disconnect if no pong within 5 seconds
 });
