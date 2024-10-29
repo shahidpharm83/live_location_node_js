@@ -72,10 +72,6 @@
         border-color: red;
       }
 
-     
-
-     
-
       #panel {
         position: fixed;
         /* Fixed position */
@@ -188,32 +184,29 @@
       <ul id="directions"></ul>
     </div>
 
-    
-
     <script>
       const socket = io();
       let userMarker; // To store the user's current position marker
       let routingControl; // To store the routing control
       let redLine; // To store the red line polyline
       const coordinates = []; // Array to hold coordinates for the red line
-      let initialZoom = 13; // Set your desired fixed zoom level
+      let initialZoom = 15; // Set your desired fixed zoom level
       // Initialize the map with the fixed zoom level
-      let currentZoom = initialZoom; // Initialize currentZoom with the initial zoom level
       let senderPosition = null; // Store sender's position globally
       let recipientPosition = null; // Store recipient position globally
 
-      const map = L.map("map").setView([0, 0], currentZoom); // Start with a fixed zoom level
+      const map = L.map("map").setView([0, 0], initialZoom); // Start with a fixed zoom level
 
       const marker = L.marker([0, 0]).addTo(map);
 
-      /// Function to handle zoom events
-      function handleZoomChange() {
-        currentZoom = map.getZoom(); // Update the current zoom level
-        console.log(`Current zoom level: ${currentZoom}`);
-      }
+      // Prevent zoom changes by resetting the zoom level if it changes
+      map.on("zoomend", function () {
+        if (map.getZoom() !== initialZoom) {
+          map.setZoom(initialZoom);
+        }
+      });
 
-      // Add event listeners for zoom events
-      map.on("zoomend", handleZoomChange);
+
       // Define Google Maps layers
       const googleStreetLayer = L.tileLayer(
         "https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
@@ -315,11 +308,8 @@
         }
       }
 
-  
       // Start by getting recipient position
       getRecipientPosition();
-
-      
 
       function startListeningForSenderLocation() {
         // Trigger to get current position
@@ -338,7 +328,7 @@
           // Update marker position and map view
 
           // marker.setLatLng([data.latitude, data.longitude]);
-          map.setView([data.latitude, data.longitude], currentZoom);
+          map.setView([data.latitude, data.longitude], initialZoom);
 
           //update sender position
 
@@ -379,7 +369,7 @@
           }
 
           // Center the map on the last coordinate without changing zoom level
-          map.setView([latitude, longitude], currentZoom);
+          map.setView([latitude, longitude], initialZoom);
         });
       }
       // Fullscreen logic
@@ -495,25 +485,29 @@
       //       console.error("Error fetching directions:", error);
       //     });
       // }
- // Define function to fetch and display directions using routing machine
+      // Define function to fetch and display directions using routing machine
       function fetchDirections(sender, recipient) {
         if (routingControl) {
           map.removeControl(routingControl); // Remove previous route
         }
-        
+
         routingControl = L.Routing.control({
           waypoints: [
             L.latLng(sender.lat, sender.lng),
-            L.latLng(recipient.lat, recipient.lng)
+            L.latLng(recipient.lat, recipient.lng),
           ],
           routeWhileDragging: true,
-          createMarker: function () { return null; } // Optional: hide markers
+          createMarker: function () {
+            return null;
+          }, // Optional: hide markers
         }).addTo(map);
       }
 
       // Ensure map initialization with red line (polyline) for sender's path
       if (!redLine) {
-        redLine = L.polyline(coordinates, { color: "red", weight: 5 }).addTo(map);
+        redLine = L.polyline(coordinates, { color: "red", weight: 5 }).addTo(
+          map
+        );
       }
 
       // Begin listening for location updates over socket.io
