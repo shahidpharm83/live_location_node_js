@@ -114,36 +114,37 @@
         /* Spacing between list items */
       }
 
-      .get-directions-btn {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background-color: #4285f4; /* Google Maps blue */
-        color: white;
-        border: none;
-        border-radius: 5px;
-        padding: 10px 15px;
-        font-size: 16px;
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        transition: background-color 0.3s ease;
-      }
+     /* Button style */
+        .get-directions-btn {
+            position: absolute;
+            bottom: 20px; /* Distance from the bottom */
+            left: 20px;   /* Distance from the left */
+            background-color: #4285f4; /* Google Maps blue */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease;
+        }
 
-      .get-directions-btn img {
-        width: 20px; /* Icon width */
-        height: 20px; /* Icon height */
-        margin-right: 8px; /* Space between icon and text */
-      }
+        .get-directions-btn img {
+            width: 20px; /* Icon width */
+            height: 20px; /* Icon height */
+            margin-right: 8px; /* Space between icon and text */
+        }
 
-      .get-directions-btn:hover {
-        background-color: #357ae8; /* Darker shade on hover */
-      }
+        .get-directions-btn:hover {
+            background-color: #357ae8; /* Darker shade on hover */
+        }
 
-      .get-directions-btn:focus {
-        outline: none; /* Remove focus outline */
-      }
+        .get-directions-btn:focus {
+            outline: none; /* Remove focus outline */
+        }
       /* Optional fullscreen button */
     </style>
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
@@ -162,6 +163,11 @@
     <!-- Panel to display route data -->
     <div id="map"></div>
     <!-- Google Maps Logo Overlay with transparent background -->
+        <!-- Get Directions Button -->
+    <button id="get-directions" class="get-directions-btn">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Directions_icon.svg/1200px-Directions_icon.svg.png" alt="Get Directions" />
+        Get Directions
+    </button>
     <div class="google-logo">
       <img src="google_maps_logo.png" alt="Google Maps Logo" width="100px" />
     </div>
