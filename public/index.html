@@ -526,7 +526,7 @@
               directionsList.innerHTML = ""; // Clear previous directions
               steps.forEach((step) => {
                 const listItem = document.createElement("li");
-                listItem.innerText = step.maneuver.instruction;
+                listItem.innerText = step.maneuver.name;
                 directionsList.appendChild(listItem);
               });
             } else {
