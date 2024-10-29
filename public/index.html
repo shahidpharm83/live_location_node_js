@@ -563,8 +563,8 @@
 
       document.getElementById('get-directions').onclick = function () {
     // Assuming you have the recipient's position stored in `recipientLatitude` and `recipientLongitude`
-    const recipientLatitude = /* Recipient's Latitude */;
-    const recipientLongitude = /* Recipient's Longitude */;
+    const recipientLatitude = recipientPosition.lat;
+    const recipientLongitude =recipientPosition.lng;
     
     // Get directions from recipient to sender's position
     if (routingControl) {
