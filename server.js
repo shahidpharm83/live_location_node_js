@@ -8,15 +8,7 @@ const { Server } = require("socket.io");
 const axios = require("axios");
 const app = express();
 const server = http.createServer(app);
-
-
-const io = require("socket.io")(server, {
-  transports: ["polling", "websocket"],
-  pingInterval: 10000, // Send ping every 10 seconds
-  pingTimeout: 5000, // Disconnect if no pong within 5 seconds
-});
-
-
+const io = new Server(server);
 
 
 app.use(
@@ -30,12 +22,7 @@ app.use(
 // Serve static files (HTML, CSS, JS) from the "public" folder
 app.use(express.static(path.join(__dirname, "public")));
 
-
 io.on("connection", (socket) => {
-    socket.on("heartbeat", (data) => {
-      console.log("Heartbeat received:", data);
-      socket.emit("heartbeat", "pong"); // Respond to heartbeat
-    });
   console.log("A user connected:", socket.id);
 
   // Listen for location updates from the Flutter client
@@ -51,6 +38,7 @@ io.on("connection", (socket) => {
     // Check for undefined values
     io.emit("requestRouteData", data1);
     console.log("Start and end point emitted to front end"); // Debug log
+    
 
     // Assuming you are using Express.js
     app.get("/api/getRoute", async (req, res) => {
@@ -85,15 +73,6 @@ io.on("connection", (socket) => {
           .json({ error: "An error occurred while fetching the route" });
       }
     });
-  });
-
-  // Respond to the "ping" event
-  socket.on("ping", () => {
-    socket.emit("pong");
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Client disconnected:", socket.id);
   });
 });
 
