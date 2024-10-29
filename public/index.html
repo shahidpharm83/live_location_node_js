@@ -61,10 +61,6 @@
       const mapsLink = `https://www.google.com/maps?q=${currentLatitude},${currentLongitude}`;
       document.getElementById('mapsLink').href = mapsLink;
 
-      // Optional: Update sender's image if available
-      if (data.imageUrl) {
-        document.getElementById('senderImage').src = data.imageUrl;
-      }
     });
 
     // Function to refresh the iframe with the latest coordinates
