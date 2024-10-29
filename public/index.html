@@ -554,30 +554,61 @@
 
       // Start the process by getting the sender's position
 
-      document.getElementById("get-directions").onclick = function () {
-        // Assuming you have the recipient's position stored in `recipientLatitude` and `recipientLongitude`
-        const recipientLatitude = recipientPosition.lat;
-        const recipientLongitude = recipientPosition.lng;
+      // document.getElementById("get-directions").onclick = function () {
+      //   // Assuming you have the recipient's position stored in `recipientLatitude` and `recipientLongitude`
+      //   const recipientLatitude = recipientPosition.lat;
+      //   const recipientLongitude = recipientPosition.lng;
 
-        // Get directions from recipient to sender's position
-        if (routingControl) {
-          routingControl.setWaypoints([
+      //   // Get directions from recipient to sender's position
+      //   if (routingControl) {
+      //     routingControl.setWaypoints([
+      //       L.latLng(recipientLatitude, recipientLongitude),
+      //       userMarker.getLatLng(),
+      //     ]);
+      //   } else {
+      //     routingControl = L.Routing.control({
+      //       waypoints: [
+      //         L.latLng(recipientLatitude, recipientLongitude), // Recipient's position
+      //         userMarker.getLatLng(), // Sender's position (userMarker)
+      //       ],
+      //       routeWhileDragging: true,
+      //       createMarker: function () {
+      //         return null;
+      //       }, // Disable default markers
+      //     }).addTo(map);
+      //   }
+      // };
+
+      function updateDirections() {
+    // Assuming you have the recipient's position stored in `recipientPosition`
+    const recipientLatitude = recipientPosition.lat;
+    const recipientLongitude = recipientPosition.lng;
+
+    // Get directions from recipient to sender's position
+    if (routingControl) {
+        routingControl.setWaypoints([
             L.latLng(recipientLatitude, recipientLongitude),
             userMarker.getLatLng(),
-          ]);
-        } else {
-          routingControl = L.Routing.control({
+        ]);
+    } else {
+        routingControl = L.Routing.control({
             waypoints: [
-              L.latLng(recipientLatitude, recipientLongitude), // Recipient's position
-              userMarker.getLatLng(), // Sender's position (userMarker)
+                L.latLng(recipientLatitude, recipientLongitude), // Recipient's position
+                userMarker.getLatLng(), // Sender's position (userMarker)
             ],
             routeWhileDragging: true,
             createMarker: function () {
-              return null;
+                return null;
             }, // Disable default markers
-          }).addTo(map);
-        }
-      };
+        }).addTo(map);
+    }
+}
+
+// Call updateDirections every 10 seconds (10000 ms)
+setInterval(updateDirections, 10000);
+
+// Optionally, add a manual trigger on the button for immediate update
+document.getElementById("get-directions").onclick = updateDirections;
     </script>
   </body>
 </html>
