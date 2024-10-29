@@ -114,6 +114,36 @@
         /* Spacing between list items */
       }
 
+      .get-directions-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: #4285f4; /* Google Maps blue */
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 15px;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        transition: background-color 0.3s ease;
+      }
+
+      .get-directions-btn img {
+        width: 20px; /* Icon width */
+        height: 20px; /* Icon height */
+        margin-right: 8px; /* Space between icon and text */
+      }
+
+      .get-directions-btn:hover {
+        background-color: #357ae8; /* Darker shade on hover */
+      }
+
+      .get-directions-btn:focus {
+        outline: none; /* Remove focus outline */
+      }
       /* Optional fullscreen button */
     </style>
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
@@ -164,6 +194,15 @@
           transition: background-color 0.3s;
         "
       >
+        <!-- Get Directions Button -->
+        <button id="get-directions" class="get-directions-btn">
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Directions_icon.svg/1200px-Directions_icon.svg.png"
+            alt="Get Directions"
+          />
+          Get Directions
+        </button>
+
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -177,8 +216,6 @@
         </svg>
       </button>
     </div>
-
-    
 
     <script>
       const socket = io();
@@ -202,7 +239,6 @@
           map.setZoom(initialZoom);
         }
       });
-
 
       // Define Google Maps layers
       const googleStreetLayer = L.tileLayer(
@@ -283,93 +319,95 @@
         }
       }
 
-     function getRecipientPosition() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
+      function getRecipientPosition() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
             (position) => {
-                recipientPosition = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude,
-                };
-                console.log("Recipient Position:", recipientPosition);
-                // Start tracking the sender's position after obtaining recipient's location
-                getSenderPosition();
+              recipientPosition = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+              };
+              console.log("Recipient Position:", recipientPosition);
+              // Start tracking the sender's position after obtaining recipient's location
+              getSenderPosition();
             },
             (error) => {
-                switch(error.code) {
-                    case error.PERMISSION_DENIED:
-                        alert("User denied the request for Geolocation. Please enable it to use this feature.");
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        alert("Location information is unavailable.");
-                        break;
-                    case error.TIMEOUT:
-                        alert("The request to get user location timed out.");
-                        break;
-                    case error.UNKNOWN_ERROR:
-                        alert("An unknown error occurred.");
-                        break;
-                }
+              switch (error.code) {
+                case error.PERMISSION_DENIED:
+                  alert(
+                    "User denied the request for Geolocation. Please enable it to use this feature."
+                  );
+                  break;
+                case error.POSITION_UNAVAILABLE:
+                  alert("Location information is unavailable.");
+                  break;
+                case error.TIMEOUT:
+                  alert("The request to get user location timed out.");
+                  break;
+                case error.UNKNOWN_ERROR:
+                  alert("An unknown error occurred.");
+                  break;
+              }
             }
-        );
-    } else {
-        alert("Geolocation is not supported by this browser.");
-        console.error("Geolocation is not supported by this browser.");
-    }
-}
+          );
+        } else {
+          alert("Geolocation is not supported by this browser.");
+          console.error("Geolocation is not supported by this browser.");
+        }
+      }
 
       // Start by getting recipient position
       getRecipientPosition();
 
-    function startListeningForSenderLocation() {
-  socket.on("locationUpdate", (data) => {
-    const { latitude, longitude } = data;
-    const imgSrc = `data:image/png;base64,${data.userimage}`;
+      function startListeningForSenderLocation() {
+        socket.on("locationUpdate", (data) => {
+          const { latitude, longitude } = data;
+          const imgSrc = `data:image/png;base64,${data.userimage}`;
 
-    // Create an icon for the user marker
-    const icon = L.icon({
-      iconUrl: imgSrc,
-      iconSize: [40, 40],
-      className: "user-marker",
-    });
+          // Create an icon for the user marker
+          const icon = L.icon({
+            iconUrl: imgSrc,
+            iconSize: [40, 40],
+            className: "user-marker",
+          });
 
-    // Update the user marker's position or create it if it doesn't exist
-    if (userMarker) {
-      // Update the existing marker's position
-      userMarker.setLatLng([latitude, longitude]);
-    } else {
-      // Create marker if it doesn't exist
-      userMarker = L.marker([latitude, longitude], { icon: icon })
-        .addTo(map)
-        .bindPopup(`<b>${data.username}</b>`)
-        .openPopup();
-      
-      // Center the map on the initial position
-      map.setView([latitude, longitude], map.getZoom());
-    }
+          // Update the user marker's position or create it if it doesn't exist
+          if (userMarker) {
+            // Update the existing marker's position
+            userMarker.setLatLng([latitude, longitude]);
+          } else {
+            // Create marker if it doesn't exist
+            userMarker = L.marker([latitude, longitude], { icon: icon })
+              .addTo(map)
+              .bindPopup(`<b>${data.username}</b>`)
+              .openPopup();
 
-    // Get current position and center it
-    const currentPosition = userMarker.getLatLng();
-    currentZoom = map.getZoom(); // Store current zoom level
+            // Center the map on the initial position
+            map.setView([latitude, longitude], map.getZoom());
+          }
 
-    // Keep the marker at the center of the screen
-    map.panTo(currentPosition, { animate: true });
-    
-    // Update the coordinates for the polyline
-    coordinates.push([latitude, longitude]);
+          // Get current position and center it
+          const currentPosition = userMarker.getLatLng();
+          currentZoom = map.getZoom(); // Store current zoom level
 
-    // Update or create the red line based on the coordinates
-    if (redLine) {
-      redLine.addLatLng([latitude, longitude]);
-    } else {
-      redLine = L.polyline(coordinates, {
-        color: "red",
-        weight: 5,
-        opacity: 0.7,
-      }).addTo(map);
-    }
-  });
-}
+          // Keep the marker at the center of the screen
+          map.panTo(currentPosition, { animate: true });
+
+          // Update the coordinates for the polyline
+          coordinates.push([latitude, longitude]);
+
+          // Update or create the red line based on the coordinates
+          if (redLine) {
+            redLine.addLatLng([latitude, longitude]);
+          } else {
+            redLine = L.polyline(coordinates, {
+              color: "red",
+              weight: 5,
+              opacity: 0.7,
+            }).addTo(map);
+          }
+        });
+      }
       // Fullscreen logic
       function requestFullscreen() {
         if (document.documentElement.requestFullscreen) {
@@ -514,6 +552,27 @@
       // getRecipientPosition();
 
       // Start the process by getting the sender's position
+
+      document.getElementById('get-directions').onclick = function () {
+    // Assuming you have the recipient's position stored in `recipientLatitude` and `recipientLongitude`
+    const recipientLatitude = /* Recipient's Latitude */;
+    const recipientLongitude = /* Recipient's Longitude */;
+    
+    // Get directions from recipient to sender's position
+    if (routingControl) {
+        routingControl.setWaypoints([L.latLng(recipientLatitude, recipientLongitude), userMarker.getLatLng()]);
+    } else {
+        routingControl = L.Routing.control({
+            waypoints: [
+                L.latLng(recipientLatitude, recipientLongitude), // Recipient's position
+                userMarker.getLatLng() // Sender's position (userMarker)
+            ],
+            routeWhileDragging: true,
+            createMarker: function() { return null; } // Disable default markers
+        }).addTo(map);
+    }
+};
+
     </script>
   </body>
 </html>
