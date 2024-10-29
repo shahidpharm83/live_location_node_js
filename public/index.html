@@ -339,7 +339,7 @@
                 directionsList.innerHTML = ""; // Clear previous directions
                 steps.forEach((step) => {
                   const listItem = document.createElement("li");
-                  listItem.innerText = step.maneuver.instruction; // Display each instruction
+                  listItem.innerText = step.maneuver.name; // Display each instruction
                   directionsList.appendChild(listItem);
                 });
               } else {
