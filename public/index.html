@@ -326,16 +326,16 @@
     const { latitude, longitude } = data;
     const imgSrc = `data:image/png;base64,${data.userimage}`;
 
-    // Add a marker with a custom icon (user's image) and popup (username)
+    // Create an icon for the user marker
     const icon = L.icon({
       iconUrl: imgSrc,
       iconSize: [40, 40],
       className: "user-marker",
     });
 
-    // Update the user marker's position
+    // Update the user marker's position or create it if it doesn't exist
     if (userMarker) {
-      // Update existing marker position
+      // Update the existing marker's position
       userMarker.setLatLng([latitude, longitude]);
     } else {
       // Create marker if it doesn't exist
@@ -345,23 +345,25 @@
         .openPopup();
     }
 
-    // Only recenter the map if you need to, e.g., if the map isn't already centered on the user's marker
-    const currentCenter = map.getCenter();
-    if (currentCenter.lat !== latitude || currentCenter.lng !== longitude) {
-      // Center the map on the last coordinate without changing zoom level
+    // Set map view only if the user marker moves more than a defined threshold
+    const currentPosition = userMarker.getLatLng();
+    const distanceMoved = map.distance(currentPosition, L.latLng(latitude, longitude));
+    
+    // Set a distance threshold (e.g., 10 meters) to avoid zooming
+    const threshold = 500;
+
+    if (distanceMoved > threshold) {
+      // Center the map on the new position without zooming
       map.setView([latitude, longitude], initialZoom);
     }
 
-    // Add the new coordinate to the array
+    // Update the coordinates for the polyline
     coordinates.push([latitude, longitude]);
 
-    // Update the red line and apply the bounds only if redLine is defined
+    // Update or create the red line based on the coordinates
     if (redLine) {
       redLine.addLatLng([latitude, longitude]);
-      // Fit the map to the bounds of the red line
-      map.fitBounds(redLine.getBounds());
     } else {
-      // Create the red line if it doesn't exist
       redLine = L.polyline(coordinates, {
         color: "red",
         weight: 5,
