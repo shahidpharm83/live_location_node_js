@@ -12,6 +12,8 @@ const server = http.createServer(app);
 
 const io = require("socket.io")(server, {
   transports: ["websocket"],
+  pingInterval: 10000, // Send ping every 10 seconds
+  pingTimeout: 5000, // Disconnect if no pong within 5 seconds
 });
 
 
@@ -30,6 +32,10 @@ app.use(express.static(path.join(__dirname, "public")));
 
 
 io.on("connection", (socket) => {
+    socket.on("heartbeat", (data) => {
+      console.log("Heartbeat received:", data);
+      socket.emit("heartbeat", "pong"); // Respond to heartbeat
+    });
   console.log("A user connected:", socket.id);
 
   // Listen for location updates from the Flutter client
