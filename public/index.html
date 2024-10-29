@@ -114,41 +114,38 @@
         /* Spacing between list items */
       }
 
-   /* Button style */
-        .get-directions-btn {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            width: 160px;
-            height: 50px;
-            background-color: rgba(66, 133, 244, 0.95);
-            color: white;
-            border: 2px solid white;
-            border-radius: 8px;
-            padding: 10px;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-            z-index: 9999;
-            transition: background-color 0.3s ease;
-        }
+      /* Circular button style */
+      .get-directions-btn {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        width: 60px; /* Smaller size for circular button */
+        height: 60px;
+        background-color: rgba(
+          255,
+          255,
+          255,
+          0.8
+        ); /* Semi-transparent background */
+        border: 2px solid rgba(255, 255, 255, 0.5); /* Light border */
+        border-radius: 50%; /* Circular shape */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Soft shadow */
+        z-index: 9999;
+        transition: background-color 0.3s ease;
+      }
 
-        .get-directions-btn img {
-            width: 24px;
-            height: 24px;
-            margin-right: 8px;
-        }
+      .get-directions-btn img {
+        width: 32px; /* Adjust icon size for circular button */
+        height: 32px;
+      }
 
-        .get-directions-btn:hover {
-            background-color: rgba(57, 99, 214, 0.95);
-        }
-
-        .get-directions-btn:focus {
-            outline: none;
-        }
+      .get-directions-btn:hover {
+        background-color: rgba(255, 255, 255, 1); /* Full opacity on hover */
+      }
       /* Optional fullscreen button */
     </style>
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
@@ -167,10 +164,13 @@
     <!-- Panel to display route data -->
     <div id="map"></div>
     <!-- Google Maps Logo Overlay with transparent background -->
-        <!-- Get Directions Button -->
+    <!-- Get Directions Button -->
     <button id="get-directions" class="get-directions-btn">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Directions_icon.svg/1200px-Directions_icon.svg.png" alt="Get Directions" />
-        Get Directions
+      <img
+        src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Directions_icon.svg/1200px-Directions_icon.svg.png"
+        alt="Get Directions"
+      />
+      Get Directions
     </button>
     <div class="google-logo">
       <img src="google_maps_logo.png" alt="Google Maps Logo" width="100px" />
@@ -204,8 +204,6 @@
           transition: background-color 0.3s;
         "
       >
-      
-
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -220,15 +218,10 @@
       </button>
     </div>
 
-
-      <!-- Get Directions Button -->
-        <button id="get-directions" class="get-directions-btn">
-          <img
-            src="./direction.png"
-            alt="Get Directions"
-          />
-         
-        </button>
+    <!-- Get Directions Button -->
+    <button id="get-directions" class="get-directions-btn">
+      <img src="./direction.png" alt="Get Directions" />
+    </button>
     <script>
       const socket = io();
       let userMarker; // To store the user's current position marker
@@ -565,26 +558,30 @@
 
       // Start the process by getting the sender's position
 
-      document.getElementById('get-directions').onclick = function () {
-    // Assuming you have the recipient's position stored in `recipientLatitude` and `recipientLongitude`
-    const recipientLatitude = recipientPosition.lat;
-    const recipientLongitude =recipientPosition.lng;
-    
-    // Get directions from recipient to sender's position
-    if (routingControl) {
-        routingControl.setWaypoints([L.latLng(recipientLatitude, recipientLongitude), userMarker.getLatLng()]);
-    } else {
-        routingControl = L.Routing.control({
+      document.getElementById("get-directions").onclick = function () {
+        // Assuming you have the recipient's position stored in `recipientLatitude` and `recipientLongitude`
+        const recipientLatitude = recipientPosition.lat;
+        const recipientLongitude = recipientPosition.lng;
+
+        // Get directions from recipient to sender's position
+        if (routingControl) {
+          routingControl.setWaypoints([
+            L.latLng(recipientLatitude, recipientLongitude),
+            userMarker.getLatLng(),
+          ]);
+        } else {
+          routingControl = L.Routing.control({
             waypoints: [
-                L.latLng(recipientLatitude, recipientLongitude), // Recipient's position
-                userMarker.getLatLng() // Sender's position (userMarker)
+              L.latLng(recipientLatitude, recipientLongitude), // Recipient's position
+              userMarker.getLatLng(), // Sender's position (userMarker)
             ],
             routeWhileDragging: true,
-            createMarker: function() { return null; } // Disable default markers
-        }).addTo(map);
-    }
-};
-
+            createMarker: function () {
+              return null;
+            }, // Disable default markers
+          }).addTo(map);
+        }
+      };
     </script>
   </body>
 </html>
