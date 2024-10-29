@@ -187,6 +187,7 @@
       let redLine; // To store the red line polyline
       const coordinates = []; // Array to hold coordinates for the red line
       let initialZoom = 15; // Set your desired fixed zoom level
+      let currentZoom; // Variable to hold the current zoom level
       // Initialize the map with the fixed zoom level
       let senderPosition = null; // Store sender's position globally
       let recipientPosition = null; // Store recipient position globally
@@ -320,8 +321,7 @@
       // Start by getting recipient position
       getRecipientPosition();
 
-      function startListeningForSenderLocation() {
-  // Trigger to get current position
+    function startListeningForSenderLocation() {
   socket.on("locationUpdate", (data) => {
     const { latitude, longitude } = data;
     const imgSrc = `data:image/png;base64,${data.userimage}`;
@@ -343,20 +343,18 @@
         .addTo(map)
         .bindPopup(`<b>${data.username}</b>`)
         .openPopup();
+      
+      // Center the map on the initial position
+      map.setView([latitude, longitude], map.getZoom());
     }
 
-    // Set map view only if the user marker moves more than a defined threshold
+    // Get current position and center it
     const currentPosition = userMarker.getLatLng();
-    const distanceMoved = map.distance(currentPosition, L.latLng(latitude, longitude));
+    currentZoom = map.getZoom(); // Store current zoom level
+
+    // Keep the marker at the center of the screen
+    map.panTo(currentPosition, { animate: true });
     
-    // Set a distance threshold (e.g., 10 meters) to avoid zooming
-    const threshold = 500;
-
-    if (distanceMoved > threshold) {
-      // Center the map on the new position without zooming
-      map.setView([latitude, longitude], initialZoom);
-    }
-
     // Update the coordinates for the polyline
     coordinates.push([latitude, longitude]);
 
@@ -372,7 +370,6 @@
     }
   });
 }
-
       // Fullscreen logic
       function requestFullscreen() {
         if (document.documentElement.requestFullscreen) {
