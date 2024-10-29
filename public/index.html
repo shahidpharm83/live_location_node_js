@@ -282,92 +282,95 @@
         }
       }
 
-      function getRecipientPosition() {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
+     function getRecipientPosition() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
             (position) => {
-              recipientPosition = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude,
-              };
-              console.log("Recipient Position:", recipientPosition);
-
-              // Start tracking the sender's position after obtaining recipient's location
-              getSenderPosition();
+                recipientPosition = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                };
+                console.log("Recipient Position:", recipientPosition);
+                // Start tracking the sender's position after obtaining recipient's location
+                getSenderPosition();
             },
             (error) => {
-              console.error("Error obtaining recipient's location:", error);
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        alert("User denied the request for Geolocation. Please enable it to use this feature.");
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        alert("Location information is unavailable.");
+                        break;
+                    case error.TIMEOUT:
+                        alert("The request to get user location timed out.");
+                        break;
+                    case error.UNKNOWN_ERROR:
+                        alert("An unknown error occurred.");
+                        break;
+                }
             }
-          );
-        } else {
-          console.error("Geolocation is not supported by this browser.");
-        }
-      }
+        );
+    } else {
+        alert("Geolocation is not supported by this browser.");
+        console.error("Geolocation is not supported by this browser.");
+    }
+}
 
       // Start by getting recipient position
       getRecipientPosition();
 
       function startListeningForSenderLocation() {
-        // Trigger to get current position
-        socket.on("locationUpdate", (data) => {
-          const { latitude, longitude } = data;
-          // console.log("Location update received in frontend:", data); // Log the received data
-          // Convert base64 image back to image source
-          const imgSrc = `data:image/png;base64,${data.userimage}`;
+  // Trigger to get current position
+  socket.on("locationUpdate", (data) => {
+    const { latitude, longitude } = data;
+    const imgSrc = `data:image/png;base64,${data.userimage}`;
 
-          // Add a marker with a custom icon (user's image) and popup (username)
-          const icon = L.icon({
-            iconUrl: imgSrc,
-            iconSize: [40, 40],
-            className: "user-marker",
-          });
-          // Update marker position and map view
+    // Add a marker with a custom icon (user's image) and popup (username)
+    const icon = L.icon({
+      iconUrl: imgSrc,
+      iconSize: [40, 40],
+      className: "user-marker",
+    });
 
-          // marker.setLatLng([data.latitude, data.longitude]);
-          map.setView([data.latitude, data.longitude], initialZoom);
+    // Update the user marker's position
+    if (userMarker) {
+      // Update existing marker position
+      userMarker.setLatLng([latitude, longitude]);
+    } else {
+      // Create marker if it doesn't exist
+      userMarker = L.marker([latitude, longitude], { icon: icon })
+        .addTo(map)
+        .bindPopup(`<b>${data.username}</b>`)
+        .openPopup();
+    }
 
-          //update sender position
+    // Only recenter the map if you need to, e.g., if the map isn't already centered on the user's marker
+    const currentCenter = map.getCenter();
+    if (currentCenter.lat !== latitude || currentCenter.lng !== longitude) {
+      // Center the map on the last coordinate without changing zoom level
+      map.setView([latitude, longitude], initialZoom);
+    }
 
-          senderPosition = { lat: latitude, lng: longitude };
-          console.log("Updated Sender Position from socket:", senderPosition);
+    // Add the new coordinate to the array
+    coordinates.push([latitude, longitude]);
 
-          // If recipient position is available, fetch directions
-          if (recipientPosition) {
-            fetchDirections(senderPosition, recipientPosition);
-          }
+    // Update the red line and apply the bounds only if redLine is defined
+    if (redLine) {
+      redLine.addLatLng([latitude, longitude]);
+      // Fit the map to the bounds of the red line
+      map.fitBounds(redLine.getBounds());
+    } else {
+      // Create the red line if it doesn't exist
+      redLine = L.polyline(coordinates, {
+        color: "red",
+        weight: 5,
+        opacity: 0.7,
+      }).addTo(map);
+    }
+  });
+}
 
-          // Update the user marker's position
-          if (userMarker) {
-            userMarker.setLatLng([latitude, longitude]); // Update existing marker position
-          } else {
-            userMarker = L.marker([latitude, longitude], { icon: icon })
-              .addTo(map)
-              .bindPopup(`<b>${data.username}</b>`)
-              .openPopup(); // Create marker if it doesn't exist
-          }
-          // Add the new coordinate to the array
-          coordinates.push([latitude, longitude]);
-
-          // Update the red line and apply the bounds only if redLine is defined
-          if (redLine) {
-            redLine.addLatLng([latitude, longitude]);
-
-            // Fit the map to the bounds of the red line
-            map.fitBounds(redLine.getBounds());
-            // map.fitBounds(window.redLine.getBounds());
-          } else {
-            // Create the red line if it doesn't exist
-            redLine = L.polyline(coordinates, {
-              color: "red",
-              weight: 5,
-              opacity: 0.7,
-            }).addTo(map);
-          }
-
-          // Center the map on the last coordinate without changing zoom level
-          map.setView([latitude, longitude], initialZoom);
-        });
-      }
       // Fullscreen logic
       function requestFullscreen() {
         if (document.documentElement.requestFullscreen) {
