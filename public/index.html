@@ -114,37 +114,41 @@
         /* Spacing between list items */
       }
 
-    .get-directions-btn {
-    position: absolute;
-    bottom: 20px; /* Distance from the bottom */
-    left: 20px;   /* Distance from the left */
-    background-color: rgba(66, 133, 244, 0.9); /* Slightly transparent Google Maps blue */
-    color: white;
-    border: 2px solid white; /* White border for contrast */
-    border-radius: 5px;
-    padding: 12px 18px; /* Increased padding */
-    font-size: 18px; /* Larger font size */
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* More pronounced shadow */
-    transition: background-color 0.3s ease;
-    z-index: 1000; /* Ensure the button is above other map elements */
-}
+   /* Button style */
+        .get-directions-btn {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 160px;
+            height: 50px;
+            background-color: rgba(66, 133, 244, 0.95);
+            color: white;
+            border: 2px solid white;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            transition: background-color 0.3s ease;
+        }
 
-.get-directions-btn img {
-    width: 24px; /* Slightly larger icon */
-    height: 24px; /* Slightly larger icon */
-    margin-right: 10px; /* Increased space between icon and text */
-}
+        .get-directions-btn img {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+        }
 
-.get-directions-btn:hover {
-    background-color: rgba(57, 99, 214, 0.9); /* Darker shade on hover */
-}
+        .get-directions-btn:hover {
+            background-color: rgba(57, 99, 214, 0.95);
+        }
 
-.get-directions-btn:focus {
-    outline: none; /* Remove focus outline */
-}
+        .get-directions-btn:focus {
+            outline: none;
+        }
       /* Optional fullscreen button */
     </style>
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
