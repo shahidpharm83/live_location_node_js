@@ -8,7 +8,14 @@ const { Server } = require("socket.io");
 const axios = require("axios");
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+
+
+const io = require("socket.io")(server, {
+  transports: ["websocket"],
+});
+
+
+
 
 app.use(
   cors({
@@ -20,6 +27,7 @@ app.use(
 
 // Serve static files (HTML, CSS, JS) from the "public" folder
 app.use(express.static(path.join(__dirname, "public")));
+
 
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
@@ -37,7 +45,6 @@ io.on("connection", (socket) => {
     // Check for undefined values
     io.emit("requestRouteData", data1);
     console.log("Start and end point emitted to front end"); // Debug log
-    
 
     // Assuming you are using Express.js
     app.get("/api/getRoute", async (req, res) => {
@@ -72,6 +79,15 @@ io.on("connection", (socket) => {
           .json({ error: "An error occurred while fetching the route" });
       }
     });
+  });
+
+  // Respond to the "ping" event
+  socket.on("ping", () => {
+    socket.emit("pong");
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Client disconnected:", socket.id);
   });
 });
 
