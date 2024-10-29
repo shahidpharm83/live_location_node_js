@@ -48,7 +48,8 @@
 
       // Update Google Maps link
       mapsLink = `https://www.google.com/maps?q=${currentLatitude},${currentLongitude}`;
-
+console.log(`Latitude: ${currentLatitude}, Longitude: ${currentLongitude}`);
+console.log(`Map Link: ${mapsLink}`);
       // Refresh the map frame immediately upon receiving new location
       refreshMapFrame();
     });
