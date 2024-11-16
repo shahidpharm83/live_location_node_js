@@ -224,7 +224,7 @@
       let routingControl; // To store the routing control
       let redLine; // To store the red line polyline
       const coordinates = []; // Array to hold coordinates for the red line
-      let initialZoom = 15; // Set your desired fixed zoom level
+      let initialZoom = 17; // Set your desired fixed zoom level
       let currentZoom; // Variable to hold the current zoom level
       // Initialize the map with the fixed zoom level
       let senderPosition = null; // Store sender's position globally
@@ -402,7 +402,7 @@
             redLine.addLatLng([latitude, longitude]);
           } else {
             redLine = L.polyline(coordinates, {
-              color: "red",
+              color: "blue",
               weight: 5,
               opacity: 0.7,
             }).addTo(map);
