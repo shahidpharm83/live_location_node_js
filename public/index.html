@@ -360,55 +360,107 @@
       // Start by getting recipient position
       getRecipientPosition();
 
-      function startListeningForSenderLocation() {
-        socket.on("locationUpdate", (data) => {
-          const { latitude, longitude } = data;
-          const imgSrc = `data:image/png;base64,${data.userimage}`;
+      // function startListeningForSenderLocation() {
+      //   socket.on("locationUpdate", (data) => {
+      //     const { latitude, longitude } = data;
+      //     const imgSrc = `data:image/png;base64,${data.userimage}`;
 
-          // Create an icon for the user marker
-          const icon = L.icon({
+      //     // Create an icon for the user marker
+      //     const icon = L.icon({
+      //       iconUrl: imgSrc,
+      //       iconSize: [40, 40],
+      //       className: "user-marker",
+      //     });
+
+      //     // Update the user marker's position or create it if it doesn't exist
+      //     if (userMarker) {
+      //       // Update the existing marker's position
+      //       userMarker.setLatLng([latitude, longitude]);
+      //     } else {
+      //       // Create marker if it doesn't exist
+      //       userMarker = L.marker([latitude, longitude], { icon: icon })
+      //         .addTo(map)
+      //         .bindPopup(`<b>${data.username}</b>`)
+      //         .openPopup();
+
+      //       // Center the map on the initial position
+      //       map.setView([latitude, longitude], map.getZoom());
+      //     }
+
+      //     // Get current position and center it
+      //     const currentPosition = userMarker.getLatLng();
+      //     currentZoom = map.getZoom(); // Store current zoom level
+
+      //     // Keep the marker at the center of the screen
+      //     map.panTo(currentPosition, { animate: true });
+
+      //     // Update the coordinates for the polyline
+      //     coordinates.push([latitude, longitude]);
+
+      //     // Update or create the red line based on the coordinates
+      //     if (redLine) {
+      //       redLine.addLatLng([latitude, longitude]);
+      //     } else {
+      //       redLine = L.polyline(coordinates, {
+      //         color: "blue",
+      //         weight: 5,
+      //         opacity: 0.7,
+      //       }).addTo(map);
+      //     }
+      //   });
+      // }
+
+function startListeningForSenderLocation() {
+    socket.on("locationUpdate", (data) => {
+        const { latitude, longitude } = data;
+        const imgSrc = "/public/user_default.png"; // Use the default image from the public folder
+
+        // Create an icon for the user marker
+        const icon = L.icon({
             iconUrl: imgSrc,
             iconSize: [40, 40],
             className: "user-marker",
-          });
+        });
 
-          // Update the user marker's position or create it if it doesn't exist
-          if (userMarker) {
+        // Update the user marker's position or create it if it doesn't exist
+        if (userMarker) {
             // Update the existing marker's position
             userMarker.setLatLng([latitude, longitude]);
-          } else {
+        } else {
             // Create marker if it doesn't exist
             userMarker = L.marker([latitude, longitude], { icon: icon })
-              .addTo(map)
-              .bindPopup(`<b>${data.username}</b>`)
-              .openPopup();
+                .addTo(map)
+                .bindPopup(`<b>'User'</b>`)
+                .openPopup();
 
             // Center the map on the initial position
             map.setView([latitude, longitude], map.getZoom());
-          }
+        }
 
-          // Get current position and center it
-          const currentPosition = userMarker.getLatLng();
-          currentZoom = map.getZoom(); // Store current zoom level
+        // Get current position and center it
+        const currentPosition = userMarker.getLatLng();
+        currentZoom = map.getZoom(); // Store current zoom level
 
-          // Keep the marker at the center of the screen
-          map.panTo(currentPosition, { animate: true });
+        // Keep the marker at the center of the screen
+        map.panTo(currentPosition, { animate: true });
 
-          // Update the coordinates for the polyline
-          coordinates.push([latitude, longitude]);
+        // Update the coordinates for the polyline
+        coordinates.push([latitude, longitude]);
 
-          // Update or create the red line based on the coordinates
-          if (redLine) {
+        // Update or create the red line based on the coordinates
+        if (redLine) {
             redLine.addLatLng([latitude, longitude]);
-          } else {
+        } else {
             redLine = L.polyline(coordinates, {
-              color: "blue",
-              weight: 5,
-              opacity: 0.7,
+                color: "blue",
+                weight: 5,
+                opacity: 0.7,
             }).addTo(map);
-          }
-        });
-      }
+        }
+    });
+}
+
+
       // Fullscreen logic
       function requestFullscreen() {
         if (document.documentElement.requestFullscreen) {
