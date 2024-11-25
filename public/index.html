@@ -413,7 +413,7 @@
 function startListeningForSenderLocation() {
     socket.on("locationUpdate", (data) => {
         const { latitude, longitude } = data;
-        const imgSrc = "/public/user_default.png"; // Use the default image from the public folder
+        const imgSrc = "/user_default.png"; // Use the default image from the public folder
 
         // Create an icon for the user marker
         const icon = L.icon({
