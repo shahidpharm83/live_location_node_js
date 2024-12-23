@@ -66,26 +66,36 @@ io.on("connection", (socket) => {
 
   // Command handling: Receive media commands (e.g., play video, play audio, show image)
   socket.on("mediaData", ({ type, path: mediaPath }) => {
-  if (!type || !mediaPath) {
-    console.error("Invalid media data received:", { type, mediaPath });
-    return;
-  }
+    console.log("Media data received:", { type, mediaPath });
 
-  switch (type) {
-    case "video":
-      streamMedia("video", mediaPath, socket);
-      break;
-    case "audio":
-      streamMedia("audio", mediaPath, socket);
-      break;
-    case "image":
-      sendImage(mediaPath, socket);
-      break;
-    default:
-      console.log("Unsupported media command received:", type);
-  }
-  console.log(`${type} data sent: ${mediaPath}`);
-});
+    if (!type || !mediaPath) {
+      console.error("Invalid media data:", { type, mediaPath });
+      return;
+    }
+
+    try {
+      switch (type) {
+        case "video":
+          console.log("Preparing to stream video...");
+          streamMedia("video", mediaPath, socket);
+          break;
+        case "audio":
+          console.log("Preparing to stream audio...");
+          streamMedia("audio", mediaPath, socket);
+          break;
+        case "image":
+          console.log("Preparing to send image...");
+          sendImage(mediaPath, socket);
+          break;
+        default:
+          console.log("Unsupported media type:", type);
+      }
+      console.log(`Successfully processed ${type}: ${mediaPath}`);
+    } catch (error) {
+      console.error("Error processing media data:", error);
+    }
+  });
+
 
 
   //send mediacommands to the front end like startScreenRecord, stopScreenRecord, startAudioRecord, stopAudioRecord and so on 
@@ -100,44 +110,36 @@ io.on("connection", (socket) => {
   // Command handling: Receive media commands (e.g., startScreenRecord, stopScreenRecord, startAudioRecord, stopAudioRecord)
 
   // Stream video or audio data in chunks
-  function streamMedia(type, mediaPath, socket) {
-    const mediaStream = fs.createReadStream(mediaPath);
+   const streamMedia = (type, mediaPath, socket) => {
+     console.log(`Streaming ${type}: ${mediaPath}`);
 
-    mediaStream.on("data", (chunk) => {
-      socket.emit("mediaData", {
-        type, // "video" or "audio"
-        data: chunk.toString("base64"), // Convert chunk to base64
-      });
-      console.log(`${chunk.length} data sent: ${mediaPath}`);
-    });
-
-    mediaStream.on("end", () => {
-      socket.emit("mediaDataEnd", { type });
-      console.log(`${type} stream ended.`);
-    });
-
-    mediaStream.on("error", (err) => {
-      console.error(`Error streaming ${type}:`, err);
-      socket.emit("mediaError", { type, error: err.message });
-    });
-  }
+     // Replace this with actual streaming logic
+     if (type === "video" || type === "audio") {
+       socket.emit("mediaData", {
+         type,
+         url: mediaPath, // URL to the media file
+       });
+     } else {
+       console.error(`Unsupported media type for streaming: ${type}`);
+     }
+   };
 
   // Send image data as base64
-  function sendImage(mediaPath, socket) {
-    fs.readFile(mediaPath, (err, data) => {
-      if (err) {
-        console.error("Error reading image file:", err);
-        socket.emit("mediaError", { type: "image", error: err.message });
-        return;
-      }
-
-      socket.emit("mediaData", {
-        type: "image",
-        data: data.toString("base64"), // Send base64 string for the image
-      });
-      console.log(`Image data sent: ${data.length} sent: ${mediaPath}`);
-    });
-  }
+   const sendImage = (mediaPath, socket) => {
+     console.log(`Sending image: ${mediaPath}`);
+     fs.readFile(mediaPath, (err, data) => {
+       if (err) {
+         console.error("Error reading image file:", err);
+         return;
+       }
+       // Convert image to base64 for simplicity
+       const base64Image = data.toString("base64");
+       socket.emit("mediaData", {
+         type: "image",
+         url: `data:image/jpeg;base64,${base64Image}`, // Adjust MIME type if necessary
+       });
+     });
+   };
 
   // Handle user disconnection
   socket.on("disconnect", () => {
