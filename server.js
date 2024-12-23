@@ -244,13 +244,59 @@ io.on("connection", (socket) => {
     console.log(`Command received: ${JSON.stringify(command)}`);
   });
 
-  // Handle media data coming from the first app
-  socket.on("mediaData", (mediaData) => {
-    // Send the media data to the second app
-    io.emit("mediaData", mediaData);
-    console.log("Media data sent to all clients");
+  // Handle incoming media request from the client
+  socket.on("mediaRequest", (mediaType, mediaPath) => {
+    // Determine the media type and handle accordingly
+    switch (mediaType) {
+      case "video":
+      case "audio":
+        streamMedia(mediaType, mediaPath);
+        break;
+      case "image":
+      case "screenshot":
+        sendImageOrScreenshot(mediaPath);
+        break;
+      default:
+        console.log("Unsupported media type");
+    }
   });
 
+  // Stream video or audio data in chunks
+  function streamMedia(type, mediaPath) {
+    const mediaStream = fs.createReadStream(mediaPath);
+
+    mediaStream.on("data", (chunk) => {
+      // Emit each chunk to the client
+      socket.emit("mediaData", {
+        type: type, // "video" or "audio"
+        data: chunk, // Send chunk data
+      });
+      console.log(`Streaming ${type} data...${chunk}`);
+    });
+
+    mediaStream.on("end", () => {
+      console.log(`${type} stream ended.`);
+    });
+
+    mediaStream.on("error", (err) => {
+      console.error(`Error streaming ${type}:`, err);
+    });
+  }
+
+  // Send image or screenshot data
+  function sendImageOrScreenshot(mediaPath) {
+    fs.readFile(mediaPath, (err, data) => {
+      if (err) {
+        console.error("Error reading image/screenshot:", err);
+        return;
+      }
+      // Emit the image data to the client as base64 encoded string
+      socket.emit("mediaData", {
+        type: "image",
+        data: data.toString("base64"), // Convert binary data to base64 string
+      });
+    });
+  }
   // Clean up when a user disconnects
   socket.on("disconnect", () => {
     console.log("A user disconnected:", socket.id);
