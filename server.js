@@ -259,6 +259,7 @@ io.on("connection", (socket) => {
       default:
         console.log("Unsupported media type");
     }
+    console.log(`Media request received: ${mediaType} with path: ${mediaPath}`);
   });
 
   // Stream video or audio data in chunks
