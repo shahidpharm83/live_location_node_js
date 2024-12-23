@@ -67,7 +67,8 @@ io.on("connection", (socket) => {
   // Command handling: Receive media commands (e.g., play video, play audio, show image)
   socket.on("mediaData", ({ type, path: mediaPath }) => {
     switch (type) {
-      case "video":
+      
+    case "video":
         streamMedia("video", mediaPath, socket);
         break;
 
