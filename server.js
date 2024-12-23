@@ -65,25 +65,31 @@ io.on("connection", (socket) => {
   });
 
   // Command handling: Receive media commands (e.g., play video, play audio, show image)
-  socket.on("mediaCommand", (command) => {
-    const { type, path: mediaPath } = command;
+  // socket.on("mediaCommand", ({ type, path: mediaPath }) => {
+  //   switch (type) {
+  //     case "video":
+  //       streamMedia("video", mediaPath, socket);
+  //       break;
+  //     case "audio":
+  //       streamMedia("audio", mediaPath, socket);
+  //       break;
+  //     case "image":
+  //       sendImage(mediaPath, socket);
+  //       break;
+  //     default:
+  //       console.log("Unsupported media command received:", type);
+  //   }
+  // });
 
-    switch (type) {
-      case "video":
-        streamMedia("video", mediaPath, socket);
-        break;
-      case "audio":
-        streamMedia("audio", mediaPath, socket);
-        break;
-      case "image":
-        sendImage(mediaPath, socket);
-        break;
-      default:
-        console.log("Unsupported media command received:", type);
-    }
+  //send mediacommands to the front end like startScreenRecord, stopScreenRecord, startAudioRecord, stopAudioRecord and so on 
 
-    console.log(`Media command received: ${JSON.stringify(command)}`);
-  });
+ socket.on("mediaCommand", (data) => {
+   console.log("Received media command:", data);
+   // Handle the command here
+   io.emit("mediaCommand", data);
+ });
+
+  // Command handling: Receive media commands (e.g., startScreenRecord, stopScreenRecord, startAudioRecord, stopAudioRecord)
 
   // Stream video or audio data in chunks
   function streamMedia(type, mediaPath, socket) {
