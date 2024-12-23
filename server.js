@@ -70,6 +70,7 @@ io.on("connection", (socket) => {
       case "video":
         streamMedia("video", mediaPath, socket);
         break;
+
       case "audio":
         streamMedia("audio", mediaPath, socket);
         break;
@@ -80,6 +81,8 @@ io.on("connection", (socket) => {
       default:
         console.log("Unsupported media command received:", type);
     }
+        console.log(`${type} data sent: ${mediaPath}`);
+
   });
 
   //send mediacommands to the front end like startScreenRecord, stopScreenRecord, startAudioRecord, stopAudioRecord and so on 
@@ -88,6 +91,7 @@ io.on("connection", (socket) => {
    console.log("Received media command:", data);
    // Handle the command here
    io.emit("mediaCommand", data);
+   console.log(`Media command emitted to all clients ${data}`);
  });
 
   // Command handling: Receive media commands (e.g., startScreenRecord, stopScreenRecord, startAudioRecord, stopAudioRecord)
@@ -101,6 +105,7 @@ io.on("connection", (socket) => {
         type, // "video" or "audio"
         data: chunk.toString("base64"), // Convert chunk to base64
       });
+      console.log(`${chunk.length} data sent: ${mediaPath}`);
     });
 
     mediaStream.on("end", () => {
@@ -127,7 +132,7 @@ io.on("connection", (socket) => {
         type: "image",
         data: data.toString("base64"), // Send base64 string for the image
       });
-      console.log(`Image data sent: ${mediaPath}`);
+      console.log(`Image data sent: ${data.length} sent: ${mediaPath}`);
     });
   }
 
