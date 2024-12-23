@@ -65,21 +65,21 @@ io.on("connection", (socket) => {
   });
 
   // Command handling: Receive media commands (e.g., play video, play audio, show image)
-  // socket.on("mediaCommand", ({ type, path: mediaPath }) => {
-  //   switch (type) {
-  //     case "video":
-  //       streamMedia("video", mediaPath, socket);
-  //       break;
-  //     case "audio":
-  //       streamMedia("audio", mediaPath, socket);
-  //       break;
-  //     case "image":
-  //       sendImage(mediaPath, socket);
-  //       break;
-  //     default:
-  //       console.log("Unsupported media command received:", type);
-  //   }
-  // });
+  socket.on("mediaData", ({ type, path: mediaPath }) => {
+    switch (type) {
+      case "video":
+        streamMedia("video", mediaPath, socket);
+        break;
+      case "audio":
+        streamMedia("audio", mediaPath, socket);
+        break;
+      case "image":
+        sendImage(mediaPath, socket);
+        break;
+      default:
+        console.log("Unsupported media command received:", type);
+    }
+  });
 
   //send mediacommands to the front end like startScreenRecord, stopScreenRecord, startAudioRecord, stopAudioRecord and so on 
 
