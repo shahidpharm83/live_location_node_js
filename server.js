@@ -295,6 +295,7 @@ io.on("connection", (socket) => {
         type: "image",
         data: data.toString("base64"), // Convert binary data to base64 string
       });
+        console.log(`Sending image data...${data.toString("base64")}`);
     });
   }
   // Clean up when a user disconnects
