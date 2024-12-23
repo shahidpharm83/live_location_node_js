@@ -76,9 +76,7 @@ io.on("connection", (socket) => {
       case "image":
         sendImage(mediaPath, socket);
         break;
-      case "screenshot":
-        sendImage(mediaPath, socket);
-        break;	
+     	
       default:
         console.log("Unsupported media command received:", type);
     }
