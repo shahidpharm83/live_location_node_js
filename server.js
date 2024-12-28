@@ -40,7 +40,7 @@ io.on("connection", (socket) => {
   });
 
   // Listen for mediaData event
-  socket.on("mediaData", ({ type, data }) => {
+  socket.on("streamMedia", ({ type, data }) => {
     console.log("Media data received:", { type, data });
 
     if (!type || !data) {
