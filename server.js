@@ -126,6 +126,7 @@ const streamMedia = (type, mediaPath, socket) => {
       type,
       url: mediaPath, // URL to the media file
     });
+    console.log(`Streaming ${type} data...`);
   } else {
     console.error(`Unsupported media type for streaming: ${type}`);
   }
