@@ -39,13 +39,12 @@ io.on("connection", (socket) => {
     console.log("Start and end point emitted to front end");
   });
 
-  // Command handling: Receive media commands (e.g., play video, play audio, show image)
- // Listen for mediaData
-  socket.on("mediaData", ({ type, file }) => {
-    console.log("Media data received:", { type, file });
+  // Listen for mediaData event
+  socket.on("mediaData", ({ type, data }) => {
+    console.log("Media data received:", { type, data });
 
-    if (!type || !file) {
-      console.error("Invalid media data:", { type, file });
+    if (!type || !data) {
+      console.error("Invalid media data:", { type, data });
       return;
     }
 
@@ -53,18 +52,15 @@ io.on("connection", (socket) => {
       switch (type) {
         case "video":
           console.log("Preparing to stream video...");
-          // Handle video data
-          streamMedia(type, file, socket);
+          streamMedia(type, data, socket);
           break;
         case "audio":
           console.log("Preparing to stream audio...");
-          // Handle audio data
-          streamMedia(type, file, socket);
+          streamMedia(type, data, socket);
           break;
         case "image":
           console.log("Preparing to send image...");
-          // Handle image data
-          sendImage(file, socket);
+          sendImage(data, socket);
           break;
         default:
           console.log("Unsupported media type:", type);
@@ -117,36 +113,27 @@ app.get("/api/getRoute", async (req, res) => {
 });
 
 // Stream video or audio data in chunks
-const streamMedia = (type, mediaPath, socket) => {
-  console.log(`Streaming ${type}: ${mediaPath}`);
+const streamMedia = (type, base64Data, socket) => {
+  console.log(`Streaming ${type}`);
 
-  // Replace this with actual streaming logic
-  if (type === "video" || type === "audio") {
-    socket.emit("mediaData", {
-      type,
-      url: mediaPath, // URL to the media file
-    });
-    console.log(`Streaming ${type} data...`);
-  } else {
-    console.error(`Unsupported media type for streaming: ${type}`);
-  }
+  // Broadcast the media data to all connected clients
+  io.emit("streamMedia", {
+    type,
+    data: base64Data, // Base64 encoded media data
+  });
+  console.log(`Streaming ${type} data...`);
 };
 
 // Send image data as base64
-const sendImage = (mediaPath, socket) => {
-  console.log(`Sending image: ${mediaPath}`);
-  fs.readFile(mediaPath, (err, data) => {
-    if (err) {
-      console.error("Error reading image file:", err);
-      return;
-    }
-    // Convert image to base64 for simplicity
-    const base64Image = data.toString("base64");
-    socket.emit("mediaData", {
-      type: "image",
-      url: `data:image/jpeg;base64,${base64Image}`, // Adjust MIME type if necessary
-    });
+const sendImage = (base64Image, socket) => {
+  console.log(`Sending image`);
+
+  // Broadcast the image data to all connected clients
+  io.emit("streamMedia", {
+    type: "image",
+    data: base64Image, // Base64 encoded image data
   });
+  console.log(`Sending image data...`);
 };
 
 // Start the server
