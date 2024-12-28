@@ -54,14 +54,17 @@ io.on("connection", (socket) => {
         case "video":
           console.log("Preparing to stream video...");
           // Handle video data
+          streamMedia(type, file, socket);
           break;
         case "audio":
           console.log("Preparing to stream audio...");
           // Handle audio data
+          streamMedia(type, file, socket);
           break;
         case "image":
           console.log("Preparing to send image...");
           // Handle image data
+          sendImage(file, socket);
           break;
         default:
           console.log("Unsupported media type:", type);
